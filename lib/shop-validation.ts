@@ -16,7 +16,7 @@ export function normalizeShop(input:Shop):Shop{
 }
 
 /** Validate stock history and capture defaults before settings can change historical costs. */
-export function prepareShopUpdate(previous: Shop, incoming: Shop, day: string): { data: Shop; error?: never } | { error: string; data?: never } {
+export function prepareShopUpdate(previous: Shop, incoming: Shop, day: string, receivedAt?: string): { data: Shop; error?: never } | { error: string; data?: never } {
  const data = structuredClone(incoming);
  const oldOrders = new Map(previous.orders.map(order => [order.id, order]));
  const oldExpenses = new Map(previous.expenses.map(expense => [expense.id, expense]));
@@ -31,6 +31,10 @@ export function prepareShopUpdate(previous: Shop, incoming: Shop, day: string): 
   const old = oldOrders.get(order.id);
   if (new Set(order.items.map(item => item.id).filter(Boolean)).size !== order.items.filter(item => item.id).length) return { error: 'Mã dòng sản phẩm bị trùng.' };
   if (order.status === 'Đã tạo đơn' && !order.spxCode?.trim() && old?.status !== 'Đã tạo đơn') return { error: 'Vui lòng nhập mã SPX trước khi chuyển sang Đã tạo đơn.' };
+  // Older/stale mobile clients may submit only the calendar date. For a new
+  // order created today, use the server receipt time so every device can place
+  // it on the hourly chart. Never invent a time for historical orders.
+  if(!old&&receivedAt&&order.date===day&&!/T\d{2}:/.test(order.created_at||''))order.created_at=receivedAt;
   order.created_at ||= order.date;
   order.date = createdDate(order);
   if (order.date > day) return { error: 'Ngày chốt đơn không được ở tương lai.' };

@@ -41,12 +41,13 @@ export async function PUT(request:Request){
  let input;try{input=shopSchema.safeParse(await request.json());}catch{return json({error:'Dữ liệu không hợp lệ.'},400);}
  if(!input.success)return json({error:'Kiểm tra lại ngày, số tiền và các trường bắt buộc.'},400);
  const {data,revision}=input.data;
+ const receivedAt=new Date().toISOString(),businessDay=shopToday();
  const config=supabaseConfig();
  if(config){
   try{
    const current=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});
    if(Number(current.revision)!==revision)return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
-   const update=prepareShopUpdate(normalizeShop(current.data),data as Shop,shopToday());
+   const update=prepareShopUpdate(normalizeShop(current.data),data as Shop,businessDay,receivedAt);
    if(update.error)return json({error:update.error},400);
    const saved=await supabaseRpc<{data:Shop;revision:number}>('save_emi_shop',{p_slug:config.slug,p_expected_revision:revision,p_data:update.data});
    return json({data:normalizeShop(saved.data),revision:Number(saved.revision)});
@@ -61,7 +62,7 @@ export async function PUT(request:Request){
  const current=await env.DB.prepare('SELECT data FROM shops WHERE owner = ?').bind(user.userId).first<{data:string}>();
  const previous=current?normalizeShop(JSON.parse(current.data) as Shop):null;
  if(!previous)return json({error:'Không tìm thấy cửa hàng. Tải lại trước khi lưu.'},409);
- const update=prepareShopUpdate(previous,data as Shop,shopToday());
+ const update=prepareShopUpdate(previous,data as Shop,businessDay,receivedAt);
  if(update.error)return json({error:update.error},400);
  const normalized=update.data;
  const result=await env.DB.prepare('UPDATE shops SET data = ?, revision = revision + 1 WHERE owner = ? AND revision = ?').bind(JSON.stringify(normalized),user.userId,revision).run();
