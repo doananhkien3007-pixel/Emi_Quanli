@@ -5,7 +5,8 @@ export type Expense = {id:string;date:string;category:string;name:string;amount:
 export type ReturnReceipt={orderId:string;receivedAt:string};
 export type ProcurementTaken={orderId:string;itemId:string;variant:string;quantity:number;takenAt:string};
 export type InventoryAllocation={orderId:string;itemId:string;variant:string;quantity:number};
-export type InventoryState={returnReceipts:ReturnReceipt[];procurementTaken:ProcurementTaken[];allocations:InventoryAllocation[]};
+export type InventoryStocktake={countedOn:string;absorbedReturnOrderIds:string[];items:{product:string;color:string;size:string;quantity:number;unitCost:number}[]};
+export type InventoryState={returnReceipts:ReturnReceipt[];procurementTaken:ProcurementTaken[];allocations:InventoryAllocation[];stocktake?:InventoryStocktake};
 export type Shop = {orders:Order[];expenses:Expense[];products:{name:string;price:number;cost:number}[];settings:{shipping:number;returnShipping:number;platformRate:number;cardRate:number;returnRateThreshold?:number};undatedInbound:number;source:string;inventory?:InventoryState};
 export type InventoryRequirement={key:string;orderId:string;itemId:string;customer:string;createdAt:string;product:string;color:string;size:string;ordered:number;fromStock:number;required:number;taken:number;pending:number;status:'Chưa lấy'|'Đã lấy'};
 export type InventoryStock={key:string;product:string;color:string;size:string;quantity:number;sourceOrders:string[]};
@@ -16,18 +17,23 @@ export const eventDate = (value?:string) => {if(!value)return '';if(/T.*(?:Z|[+-
 export const createdDate = (order:Order) => eventDate(order.created_at||order.date);
 const cleanVariant=(value?:string)=>String(value||'').trim().toLocaleLowerCase('vi');
 export const variantKey=(item:Pick<Item,'product'|'color'|'size'>)=>[cleanVariant(item.product),cleanVariant(item.color),cleanVariant(item.size)].join('\u001f');
-export const inventoryState=(shop:Shop):InventoryState=>({returnReceipts:shop.inventory?.returnReceipts||[],procurementTaken:shop.inventory?.procurementTaken||[],allocations:shop.inventory?.allocations||[]});
+export const inventoryState=(shop:Shop):InventoryState=>({returnReceipts:shop.inventory?.returnReceipts||[],procurementTaken:shop.inventory?.procurementTaken||[],allocations:shop.inventory?.allocations||[],stocktake:shop.inventory?.stocktake});
 const activeInventoryStatuses=new Set(['Mới','Đã tạo đơn']);
 /** Returns are a state-derived receipt: one per order, removed when its status changes. */
 function inventorySupply(shop:Shop){
  const previous=inventoryState(shop),ordersById=new Map(shop.orders.map(order=>[order.id,order]));
+ const stocktake=previous.stocktake;
  const receiptDates=new Map(previous.returnReceipts.map(receipt=>[receipt.orderId,receipt.receivedAt]));
  const returnReceipts=shop.orders.filter(order=>order.status==='Hoàn').map(order=>({orderId:order.id,receivedAt:receiptDates.get(order.id)||order.returned_at||order.date}));
  const state={...previous,returnReceipts};
  const received=returnReceipts.map(receipt=>({receipt,order:ordersById.get(receipt.orderId)!}));
  const supply=new Map<string,number>(),variantInfo=new Map<string,{product:string;color:string;size:string;sourceOrders:Set<string>}>();
  const add=(item:Item,quantity:number,orderId:string)=>{if(quantity<=0)return;const key=variantKey(item);supply.set(key,(supply.get(key)||0)+quantity);const info=variantInfo.get(key)||{product:item.product,color:item.color||'',size:item.size,sourceOrders:new Set<string>()};info.sourceOrders.add(orderId);variantInfo.set(key,info);};
- for(const {order} of received)for(const item of order.items)add(item,item.quantity,order.id);
+ if(stocktake)for(const item of stocktake.items)add({...item,price:0,cost:item.unitCost},item.quantity,`Kiểm kho ${stocktake.countedOn}`);
+ for(const {order} of received){
+  if(stocktake?.absorbedReturnOrderIds.includes(order.id))continue;
+  for(const item of order.items)add(item,item.quantity,order.id);
+ }
  // Factory receipts stay attached to waiting/dispatched orders. Only cancellations free them.
  for(const record of state.procurementTaken){const order=ordersById.get(record.orderId);if(order?.status!=='Hủy')continue;const item=order.items.find((item,index)=>(item.id||`${order.id}-${index+1}`)===record.itemId);if(item&&variantKey(item)===record.variant)add(item,record.quantity,order.id);}
  return {state,received,supply,variantInfo};
