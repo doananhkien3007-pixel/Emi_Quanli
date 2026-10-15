@@ -9,7 +9,7 @@ export type InventoryStocktake={countedOn:string;absorbedReturnOrderIds:string[]
 export type InventoryState={returnReceipts:ReturnReceipt[];procurementTaken:ProcurementTaken[];allocations:InventoryAllocation[];stocktake?:InventoryStocktake};
 export type Shop = {orders:Order[];expenses:Expense[];products:{name:string;price:number;cost:number}[];settings:{shipping:number;returnShipping:number;platformRate:number;cardRate:number;returnRateThreshold?:number};undatedInbound:number;source:string;inventory?:InventoryState};
 export type InventoryRequirement={key:string;orderId:string;itemId:string;customer:string;createdAt:string;product:string;color:string;size:string;ordered:number;fromStock:number;required:number;taken:number;pending:number;status:'Chưa lấy'|'Đã lấy'};
-export type InventoryStock={key:string;product:string;color:string;size:string;quantity:number;sourceOrders:string[]};
+export type InventoryStock={key:string;product:string;color:string;size:string;quantity:number;unitCost:number;sourceOrders:string[]};
 export const money = (n:number) => new Intl.NumberFormat('vi-VN',{maximumFractionDigits:0}).format(n) + ' ₫';
 export const shortMoney = (n:number) => Math.abs(n)>=1e6 ? (n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:1})+'tr' : Math.abs(n)>=1000 ? (n/1000).toLocaleString('vi-VN',{maximumFractionDigits:0})+'k' : n.toLocaleString('vi-VN');
 const businessDateFormatter=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'});
@@ -27,9 +27,9 @@ function inventorySupply(shop:Shop){
  const returnReceipts=shop.orders.filter(order=>order.status==='Hoàn').map(order=>({orderId:order.id,receivedAt:receiptDates.get(order.id)||order.returned_at||order.date}));
  const state={...previous,returnReceipts};
  const received=returnReceipts.map(receipt=>({receipt,order:ordersById.get(receipt.orderId)!}));
- const supply=new Map<string,number>(),variantInfo=new Map<string,{product:string;color:string;size:string;sourceOrders:Set<string>}>();
- const add=(item:Item,quantity:number,orderId:string)=>{if(quantity<=0)return;const key=variantKey(item);supply.set(key,(supply.get(key)||0)+quantity);const info=variantInfo.get(key)||{product:item.product,color:item.color||'',size:item.size,sourceOrders:new Set<string>()};info.sourceOrders.add(orderId);variantInfo.set(key,info);};
- if(stocktake)for(const item of stocktake.items)add({...item,price:0,cost:item.unitCost},item.quantity,`Kiểm kho ${stocktake.countedOn}`);
+ const supply=new Map<string,number>(),variantInfo=new Map<string,{product:string;color:string;size:string;unitCost:number;sourceOrders:Set<string>}>();
+ const add=(item:Item,quantity:number,orderId:string)=>{if(quantity<=0)return;const key=variantKey(item);supply.set(key,(supply.get(key)||0)+quantity);const info=variantInfo.get(key)||{product:item.product,color:item.color||'',size:item.size,unitCost:item.quantity?item.cost/item.quantity:0,sourceOrders:new Set<string>()};info.sourceOrders.add(orderId);variantInfo.set(key,info);};
+ if(stocktake)for(const item of stocktake.items)add({...item,price:0,cost:item.unitCost*item.quantity},item.quantity,`Kiểm kho ${stocktake.countedOn}`);
  for(const {order} of received){
   if(stocktake?.absorbedReturnOrderIds.includes(order.id))continue;
   for(const item of order.items)add(item,item.quantity,order.id);
@@ -57,8 +57,8 @@ export function inventorySnapshot(shop:Shop){
  const requirements:InventoryRequirement[]=[];
  const demandOrders=shop.orders.filter(order=>activeInventoryStatuses.has(order.status)).sort((a,b)=>(a.created_at||a.date).localeCompare(b.created_at||b.date)||a.id.localeCompare(b.id));
  for(const order of demandOrders){order.items.forEach((item,index)=>{const itemId=item.id||`${order.id}-${index+1}`,identity=`${order.id}\u001f${itemId}`,key=variantKey(item),ordered=Math.max(0,item.quantity),fromStock=Math.min(ordered,allocatedByItem.get(identity)||0),required=ordered-fromStock;if(!required)return;const record=takenMap.get(identity),taken=record?.variant===key?Math.min(required,Math.max(0,record.quantity)):0,pending=required-taken;requirements.push({key,orderId:order.id,itemId,customer:order.customer,createdAt:order.created_at||order.date,product:item.product,color:item.color||'',size:item.size,ordered,fromStock,required,taken,pending,status:pending?'Chưa lấy':'Đã lấy'});});}
- const stock:InventoryStock[]=[...available.entries()].filter(([,quantity])=>quantity>0).map(([key,quantity])=>{const info=variantInfo.get(key)!;return {key,product:info.product,color:info.color,size:info.size,quantity,sourceOrders:[...info.sourceOrders]};}).sort((a,b)=>a.product.localeCompare(b.product,'vi')||a.color.localeCompare(b.color,'vi')||a.size.localeCompare(b.size,'vi'));
- return {requirements,stock,receivedOrders:new Set(received.map(entry=>entry.receipt.orderId)),totalPending:requirements.reduce((sum,row)=>sum+row.pending,0),totalStock:stock.reduce((sum,row)=>sum+row.quantity,0)};
+ const stock:InventoryStock[]=[...available.entries()].filter(([,quantity])=>quantity>0).map(([key,quantity])=>{const info=variantInfo.get(key)!;return {key,product:info.product,color:info.color,size:info.size,quantity,unitCost:info.unitCost,sourceOrders:[...info.sourceOrders]};}).sort((a,b)=>a.product.localeCompare(b.product,'vi')||a.color.localeCompare(b.color,'vi')||a.size.localeCompare(b.size,'vi'));
+ return {requirements,stock,receivedOrders:new Set(received.map(entry=>entry.receipt.orderId)),totalPending:requirements.reduce((sum,row)=>sum+row.pending,0),totalStock:stock.reduce((sum,row)=>sum+row.quantity,0),totalStockValue:stock.reduce((sum,row)=>sum+row.quantity*row.unitCost,0)};
 }
 export function setReturnReceived(shop:Shop,orderId:string,receivedAt:string,received=true):Shop{
  const state=inventoryState(shop),returnReceipts=state.returnReceipts.filter(receipt=>receipt.orderId!==orderId);

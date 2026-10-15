@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, type ReactNode } from 'react';
-import { ArrowRight, CircleCheck, CircleDollarSign, Clock, Info, Megaphone, Percent, Receipt, ShoppingBag, Target, TrendingDown, TrendingUp, Wallet, X } from 'lucide-react';
+import { ArrowRight, CircleCheck, CircleDollarSign, Clock, Info, Megaphone, Package, Percent, Receipt, ShoppingBag, Target, TrendingDown, TrendingUp, Wallet, X } from 'lucide-react';
 import { money } from '../lib/model';
 import { type DailyMetric, type FinancialMetric, type CohortDailyMetric, type CohortFinancialMetric, type cohortMetrics } from '../lib/analytics';
 import { RevenueChart } from './dashboard-presentation';
@@ -38,7 +38,7 @@ export function DataQualityNote({metric,undated,includeUndated}:{metric:Financia
  </div></details>;
 }
 
-export function BusinessResult({metric}:{metric:Metric}){
+export function BusinessResult({metric,inventory}:{metric:Metric;inventory?:{totalStock:number;totalStockValue:number}}){
  const isNegative=metric.profit<0;
  const values=[
   {label:'Doanh thu thực',value:money(metric.revenue),note:'Từ đơn giao thành công',icon:CircleDollarSign,accent:'blue'},
@@ -50,6 +50,7 @@ export function BusinessResult({metric}:{metric:Metric}){
   {label:'Doanh số chốt',value:money(metric.gross),icon:ShoppingBag,accent:'blue'},
   {label:'Giá trị đang xử lý',value:money(metric.pendingValue),icon:Clock,accent:'purple'},
   {label:'Lợi nhuận/đơn thành công',value:metric.profitPerDelivery===null?'—':money(metric.profitPerDelivery),icon:CircleCheck,accent:'green'},
+  ...(inventory?[{label:'Số lượng hàng tồn',value:inventory.totalStock.toLocaleString('vi-VN'),icon:Package,accent:'blue'},{label:'Giá trị hàng tồn',value:money(inventory.totalStockValue),icon:Wallet,accent:'teal'}]:[]),
  ];
  return <section className="business-result"><div className="business-result-heading"><h2>Kết quả kinh doanh</h2><small>{metric.provisional?'Số liệu tạm tính':'Kết quả đã ghi nhận'}{metric.pending>0?` · ${metric.pending} đơn đang xử lý`:''}</small></div><div className="business-metric-grid">{values.map(item=><article key={item.label} className={`panel mini-today-stat business-metric-card accent-${item.accent}${item.negative?' result-negative':''}`}><div><span>{item.label}</span><item.icon size={19} strokeWidth={1.9} aria-hidden="true"/></div><strong title={item.value}>{item.value}</strong><small>{item.note}</small></article>)}</div><div className="business-support-grid">{supporting.map(item=><article key={item.label} className={`panel mini-today-stat business-support-card accent-${item.accent}`}><div><span>{item.label}</span><item.icon size={18} strokeWidth={1.9} aria-hidden="true"/></div><strong title={item.value}>{item.value}</strong></article>)}</div></section>;
 }

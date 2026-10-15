@@ -25,6 +25,14 @@ check('Wrong color, size or product cannot consume another SKU',()=>{
  const s=shop([order('R',[item('r',3)],'Hoàn'),order('A',[item('x',1,'Xanh'),item('l',1,'Đỏ','L'),item('p',1,'Đỏ','M','Váy')])]);
  assert.equal(inventorySnapshot(s).totalStock,3);assert.equal(inventorySnapshot(s).totalPending,3);
 });
+check('Physical stocktake replaces old returns without losing new returns or accepting client edits',()=>{
+ const stocktake={countedOn:day,absorbedReturnOrderIds:['OLD'],items:[{product:'Váy lụa hoa to',color:'',size:'3XL',quantity:1,unitCost:127000}]};
+ let s=normalizeShop({...shop([order('OLD',[item('old',3)],'Hoàn')]),inventory:{returnReceipts:[],procurementTaken:[],allocations:[],stocktake}});
+ let snapshot=inventorySnapshot(s);assert.equal(snapshot.totalStock,1);assert.equal(snapshot.stock[0].product,'Váy lụa hoa to');assert.equal(snapshot.stock[0].size,'3XL');
+ s=save(s,{...s,inventory:{...s.inventory,stocktake:{...stocktake,items:[]}}});assert.equal(inventorySnapshot(s).totalStock,1);
+ s=add(s,{...order('NEW',[item('new',1,'','3XL','Váy lụa hoa to')],'Hoàn'),returned_at:day});
+ snapshot=inventorySnapshot(s);assert.equal(snapshot.totalStock,2);assert.equal(snapshot.stock[0].quantity,2);
+});
 check('Returns automatically enter stock once, survive reloads, and roll back on status change',()=>{
  let s=receive(shop([order('A',[item('a',2)])]));s=status(s,'A','Hoàn');
  assert.equal(inventorySnapshot(s).totalStock,2);assert.equal(s.inventory.returnReceipts.length,1);
