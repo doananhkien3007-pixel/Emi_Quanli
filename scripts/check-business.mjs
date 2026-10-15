@@ -56,11 +56,14 @@ check('Server captures event dates without inventing legacy events or mutating n
  let result=prepareShopUpdate(before,{...before,orders:[{...before.orders[0],status:'Giao thành công'}]},'2026-10-05');assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].delivered_at,'2026-10-05');assert.equal(result.data.orders[0].shipped_at,'2026-10-05');
  const legacy=normalizeShop({...base,orders:[{...order,delivered_at:undefined,shipped_at:undefined}]});result=prepareShopUpdate(legacy,{...legacy,orders:[{...legacy.orders[0],note:'Bổ sung ghi chú'}]},'2026-10-05');assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].delivered_at,undefined);assert.equal(result.data.orders[0].shipped_at,undefined);
 });
-check('Server stamps a missing hour on a new same-day order from a stale mobile client',()=>{
+check('Server preserves supplied creation time and never invents a missing hour',()=>{
  const previous=normalizeShop({...base,orders:[]});
- const mobileOrder={...newOrder,id:'MOBILE',date:'2026-10-15',created_at:'2026-10-15'};
- const result=prepareShopUpdate(previous,{...previous,orders:[mobileOrder]},'2026-10-15','2026-10-15T12:34:56.000Z');
- assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].created_at,'2026-10-15T12:34:56.000Z');
+ const exactOrder={...newOrder,id:'EXACT',date:'2026-10-15',created_at:'2026-10-15T19:44:48+07:00'};
+ let result=prepareShopUpdate(previous,{...previous,orders:[exactOrder]},'2026-10-15');
+ assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].created_at,'2026-10-15T19:44:48+07:00');
+ const legacyOrder={...newOrder,id:'LEGACY',date:'2026-10-15',created_at:'2026-10-15'};
+ result=prepareShopUpdate(previous,{...previous,orders:[legacyOrder]},'2026-10-15');
+ assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].created_at,'2026-10-15');
 });
 check('Server rejects bad dates, missing SPX, duplicate IDs and received stock history edits',()=>{
  assert.equal(shopSchema.safeParse({revision:1,data:{...base,orders:[{...order,date:'2026-02-30'}]}}).success,false);
