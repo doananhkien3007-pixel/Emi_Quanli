@@ -63,3 +63,29 @@ main{padding:16px 22px 24px}
  .modal-heading,.modal-body{padding:14px 16px}
  .inventory-batch{margin:12px;padding:12px}
 }
+
+/* Compact order cards on phones, shared by Overview and Orders pages. */
+@media(max-width:700px){
+ .orders-panel tbody tr{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;gap:7px 10px;padding:11px 12px}
+ .orders-panel td:nth-child(1){grid-column:1;grid-row:1;gap:6px;min-height:28px}
+ .orders-panel td:nth-child(1) .order-id{font-size:11px}
+ .orders-panel td:nth-child(1) small{font-size:9px}
+ .orders-panel td:nth-child(6){grid-column:2;grid-row:1;align-self:start}
+ .orders-panel .status-select{min-height:28px;padding-inline:7px 5px}
+ .orders-panel .status-select>select{max-width:126px;padding-right:14px;font-size:10px;line-height:18px}
+ .orders-panel td:nth-child(2){grid-column:1;grid-row:2;align-self:center}
+ .orders-panel .customer-cell{gap:8px}
+ .orders-panel .customer-avatar{width:27px;height:27px}
+ .orders-panel .customer-cell strong{font-size:11.5px}
+ .orders-panel .customer-cell small{margin-top:1px;font-size:9px;line-height:1.25}
+ .orders-panel td:nth-child(7){grid-column:2;grid-row:2;align-self:center;justify-self:end}
+ .orders-panel td:nth-child(7) .icon-button{width:30px;height:30px}
+ .orders-panel td:nth-child(3){grid-column:1;grid-row:3;padding-left:35px;min-width:0}
+ .orders-panel .product-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px}
+ .orders-panel td:nth-child(3) small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;font-size:9px;line-height:1.3}
+ .orders-panel td:nth-child(4){grid-column:2;grid-row:3;align-self:center;padding:0;border:0;text-align:right;white-space:nowrap}
+ .orders-panel td:nth-child(4) strong{font-size:12.5px}
+ .orders-panel td:nth-child(5){grid-column:1/-1;grid-row:4;padding:1px 0 0 35px;border:0}
+ .orders-panel td:nth-child(5):has(.spx-empty){display:none}
+ .orders-panel .spx-code{padding:4px 6px;font-size:8.5px}
+}
