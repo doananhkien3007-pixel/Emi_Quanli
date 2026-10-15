@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, type ReactNode } from 'react';
-import { ArrowRight, ChartNoAxesCombined, CircleCheck, CircleDollarSign, Clock, Info, Megaphone, Percent, Receipt, ShoppingBag, Target, TrendingDown, TrendingUp, Wallet, X } from 'lucide-react';
+import { ArrowRight, CircleCheck, CircleDollarSign, Clock, Info, Megaphone, Percent, Receipt, ShoppingBag, Target, TrendingDown, TrendingUp, Wallet, X } from 'lucide-react';
 import { money } from '../lib/model';
 import { type DailyMetric, type FinancialMetric, type CohortDailyMetric, type CohortFinancialMetric, type cohortMetrics } from '../lib/analytics';
 import { RevenueChart } from './dashboard-presentation';
@@ -41,17 +41,17 @@ export function DataQualityNote({metric,undated,includeUndated}:{metric:Financia
 export function BusinessResult({metric}:{metric:Metric}){
  const isNegative=metric.profit<0;
  const values=[
-  {label:'Doanh thu thực',value:money(metric.revenue),icon:CircleDollarSign,accent:'blue'},
-  {label:'Tổng chi phí',value:money(metric.costs),icon:Receipt,accent:'slate'},
-  {label:metric.provisional?'Lợi nhuận tạm tính':'Lợi nhuận',value:money(metric.profit),emphasis:true,negative:isNegative,icon:isNegative?TrendingDown:TrendingUp,accent:isNegative?'rose':'emerald'},
-  {label:'Biên lợi nhuận',value:percent(metric.margin),icon:Percent,accent:'teal'},
+  {label:'Doanh thu thực',value:money(metric.revenue),note:'Từ đơn giao thành công',icon:CircleDollarSign,accent:'blue'},
+  {label:'Tổng chi phí',value:money(metric.costs),note:'Các khoản đã ghi nhận',icon:Receipt,accent:'purple'},
+  {label:metric.provisional?'Lợi nhuận tạm tính':'Lợi nhuận',value:money(metric.profit),note:'Doanh thu trừ chi phí',negative:isNegative,icon:isNegative?TrendingDown:TrendingUp,accent:isNegative?'rose':'green'},
+  {label:'Biên lợi nhuận',value:percent(metric.margin),note:'Lợi nhuận trên doanh thu',icon:Percent,accent:'teal'},
  ];
  const supporting=[
-  {label:'Doanh số chốt',value:money(metric.gross),icon:ShoppingBag},
-  {label:'Giá trị đang xử lý',value:money(metric.pendingValue),icon:Clock},
-  {label:'Lợi nhuận/đơn thành công',value:metric.profitPerDelivery===null?'—':money(metric.profitPerDelivery),icon:CircleCheck},
+  {label:'Doanh số chốt',value:money(metric.gross),icon:ShoppingBag,accent:'blue'},
+  {label:'Giá trị đang xử lý',value:money(metric.pendingValue),icon:Clock,accent:'purple'},
+  {label:'Lợi nhuận/đơn thành công',value:metric.profitPerDelivery===null?'—':money(metric.profitPerDelivery),icon:CircleCheck,accent:'green'},
  ];
- return <section className="panel business-result"><div className="analysis-section-title"><div className="title-with-badge"><span className="title-icon-badge"><ChartNoAxesCombined size={16} strokeWidth={1.9}/></span><h2>Kết quả kinh doanh</h2></div><small>{metric.provisional?'Số liệu tạm tính':'Kết quả đã ghi nhận'}{metric.pending>0?` · ${metric.pending} đơn đang xử lý`:''}</small></div><div className="business-result-grid">{values.map(item=><article key={item.label} className={`${item.emphasis?'result-emphasis':''} ${item.negative?'result-negative':''}`}><div className="result-label-row"><span>{item.label}</span><span className={`result-mini-icon accent-${item.accent}`}><item.icon size={17} strokeWidth={1.8}/></span></div><strong title={item.value}>{item.value}</strong></article>)}</div><dl className="business-result-supporting">{supporting.map(item=><div key={item.label}><dt><span className="supporting-icon-wrap"><item.icon size={13} strokeWidth={1.8}/></span><span>{item.label}</span></dt><dd>{item.value}</dd></div>)}</dl></section>;
+ return <section className="business-result"><div className="business-result-heading"><h2>Kết quả kinh doanh</h2><small>{metric.provisional?'Số liệu tạm tính':'Kết quả đã ghi nhận'}{metric.pending>0?` · ${metric.pending} đơn đang xử lý`:''}</small></div><div className="business-metric-grid">{values.map(item=><article key={item.label} className={`panel mini-today-stat business-metric-card accent-${item.accent}${item.negative?' result-negative':''}`}><div><span>{item.label}</span><item.icon size={19} strokeWidth={1.9} aria-hidden="true"/></div><strong title={item.value}>{item.value}</strong><small>{item.note}</small></article>)}</div><div className="business-support-grid">{supporting.map(item=><article key={item.label} className={`panel mini-today-stat business-support-card accent-${item.accent}`}><div><span>{item.label}</span><item.icon size={18} strokeWidth={1.9} aria-hidden="true"/></div><strong title={item.value}>{item.value}</strong></article>)}</div></section>;
 }
 
 export function AdPerformance({metric}:{metric:Metric}){
