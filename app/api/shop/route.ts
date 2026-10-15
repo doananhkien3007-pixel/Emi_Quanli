@@ -63,7 +63,7 @@ export async function PUT(request:Request){
    if(Number(current.revision)!==revision)return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
    const times=await getOrderCreationTimes(config.slug);
    const update=prepareShopUpdate(normalizeShop(withOrderCreationTimes(current.data,times)),data as Shop,businessDay);
-   if(update.error)return json({error:update.error},400);
+   if(!update.data)return json({error:update.error},400);
    const saved=await saveSupabaseShop(config.slug,revision,update.data);
    return json({data:normalizeShop(saved.data),revision:Number(saved.revision)});
   }catch(error){
@@ -78,7 +78,7 @@ export async function PUT(request:Request){
  const previous=current?normalizeShop(JSON.parse(current.data) as Shop):null;
  if(!previous)return json({error:'Không tìm thấy cửa hàng. Tải lại trước khi lưu.'},409);
  const update=prepareShopUpdate(previous,data as Shop,businessDay);
- if(update.error)return json({error:update.error},400);
+ if(!update.data)return json({error:update.error},400);
  const normalized=update.data;
  const result=await env.DB.prepare('UPDATE shops SET data = ?, revision = revision + 1 WHERE owner = ? AND revision = ?').bind(JSON.stringify(normalized),user.userId,revision).run();
  if(!result.meta.changes)return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
