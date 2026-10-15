@@ -1,0 +1,1390 @@
+{
+  "orders": [
+    {
+      "id": "EH-0001",
+      "date": "2026-10-05",
+      "customer": "Vo Huong",
+      "phone": "0976196532",
+      "address": "Nhà số 5, hẻm 33 đường Trần Văn Trà, ấp Tân Hòa, xã Tân Bình, Thành phố tây ninh",
+      "product": "Váy lụa xanh",
+      "size": "L",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 4,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "L",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0002",
+      "date": "2026-10-05",
+      "customer": "Niem Hoang",
+      "phone": "0376486482",
+      "address": "Khu rừng thông, xã bình gia, tỉnh lạng sơn",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 260000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 5,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 260000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0003",
+      "date": "2026-10-05",
+      "customer": "Nguyễn Thị Minh Tâm",
+      "phone": "0368085624",
+      "address": "(Quán lẩu bò Nam Han trên quán cafe Hoa Vô Thường) thôn Phước chánh, xã Đức Hòa, huyện Mộ Đức, Tính Quãng Ngãi",
+      "product": "Váy lụa xanh",
+      "size": "XXL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Hoàn",
+      "note": "",
+      "sourceRow": 6,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0004",
+      "date": "2026-10-05",
+      "customer": "Kimtuyen Ho",
+      "phone": "0987807309",
+      "address": "Trường THCS Kiên Lương.,Xã Kiên Lương, tỉnh Kiên Giang",
+      "product": "Váy lụa hoa to",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 7,
+      "items": [
+        {
+          "product": "Váy lụa hoa to",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0005",
+      "date": "2026-10-06",
+      "customer": "Cecilia Ngoc Nhung",
+      "phone": "0936595740",
+      "address": "67 lê lợi, phường 4, gò vấp",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 8,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0006",
+      "date": "2026-10-06",
+      "customer": "Hồ Lan",
+      "phone": "0919440996",
+      "address": "35 triệu việt vương, phường xuân hương, đà lạt",
+      "product": "Váy lụa hoa nhí",
+      "size": "L",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Hoàn",
+      "note": "",
+      "sourceRow": 9,
+      "items": [
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "L",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0007",
+      "date": "2026-10-06",
+      "customer": "Thuý Phương Trần",
+      "phone": "0769203323",
+      "address": "khu 7, phường Quang Trung, Uông Bí, Quảng Ninh cũ",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 10,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0008",
+      "date": "2026-10-06",
+      "customer": "Lê Hường",
+      "phone": "0788221668",
+      "address": "26 đường tầu cát cụt, phường An Biên, Lê Chân, Hải Phòng",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Hoàn",
+      "note": "",
+      "sourceRow": 11,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0009",
+      "date": "2026-10-06",
+      "customer": "Vĩnh Phước",
+      "phone": "0946808809",
+      "address": "Kp Suối Nhum, Phường Hắc Dịch, Phú Mỹ, Bà rịa vũng tàu",
+      "product": "Váy lụa hoa nhí",
+      "size": "L",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 12,
+      "items": [
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "L",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0010",
+      "date": "2026-10-06",
+      "customer": "Doãn Kim",
+      "phone": "0919339313",
+      "address": "khóm 3 TT Tràm Chim Tam Nông Đồng Tháp",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 13,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0011",
+      "date": "2026-10-06",
+      "customer": "Đặng Kiều",
+      "phone": "0395487931",
+      "address": "ấp định bình, xã chợ lách, bến tre",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Hoàn",
+      "note": "",
+      "sourceRow": 14,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0012",
+      "date": "2026-10-07",
+      "customer": "Nhung Kim",
+      "phone": "0328850510",
+      "address": "ấp 1, xã Tân hào, giồng trôm, bến tre",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Hoàn",
+      "note": "",
+      "sourceRow": 15,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0013",
+      "date": "2026-10-07",
+      "customer": "Hoàng Thanh",
+      "phone": "0817271879",
+      "address": "136 Ngô Quyền, phường Phú Cường, Thành phố Thủ Dầu Một, Bình Dương",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 16,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0014",
+      "date": "2026-10-07",
+      "customer": "Le Thi Diep",
+      "phone": "0938598356",
+      "address": "đường 26 hẻm 23 số nhà 23.23 Phước Long, thủ đức",
+      "product": "Váy lụa hoa to",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Đã gửi",
+      "note": "",
+      "sourceRow": 17,
+      "items": [
+        {
+          "product": "Váy lụa hoa to",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0015",
+      "date": "2026-10-07",
+      "customer": "Cẩm Loan",
+      "phone": "0842432523",
+      "address": "1166/78 quốc lộ 1a, bình tân",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 18,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0016",
+      "date": "2026-10-08",
+      "customer": "Đặng Tú Quyên",
+      "phone": "0396566777",
+      "address": "ấp tam hưng, Xã vĩnh hưng, Vĩnh lơi, tỉnh bac liêu",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Hoàn",
+      "note": "",
+      "sourceRow": 19,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0017",
+      "date": "2026-10-08",
+      "customer": "Ngân Tuyết",
+      "phone": "0979950218",
+      "address": "ấp 2B, xuân bắc, xuân lộc, đồng nai",
+      "product": "Váy lụa xanh + Váy lụa hoa to",
+      "size": "XL",
+      "quantity": 2,
+      "price": 558000.0,
+      "cost": 254000.0,
+      "status": "Hoàn",
+      "note": "",
+      "sourceRow": 20,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa to",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0018",
+      "date": "2026-10-08",
+      "customer": "Lê Phượng",
+      "phone": "0966342120",
+      "address": "Ấp 5 thị trấn nàng mau huyện vị Thủy tỉnh hậu Giang",
+      "product": "Váy lụa hoa nhí",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 22,
+      "items": [
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0019",
+      "date": "2026-10-09",
+      "customer": "Dung Nguyễn",
+      "phone": "0859355258",
+      "address": "Phường cam phúc Bắc chợ số chín cam ranh Khánh hòa",
+      "product": "Váy lụa hoa nhí",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Hoàn",
+      "note": "",
+      "sourceRow": 23,
+      "items": [
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0020",
+      "date": "2026-10-09",
+      "customer": "Le Hang",
+      "phone": "0383774480",
+      "address": "ngõ 60 Ngô Gia Tự phường quán bàu thành phố Vinh Nghệ An",
+      "product": "Váy lụa hoa tím",
+      "size": "L",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 24,
+      "items": [
+        {
+          "product": "Váy lụa hoa tím",
+          "size": "L",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0021",
+      "date": "2026-10-09",
+      "customer": "Noi Pham",
+      "phone": "0978031473",
+      "address": "9o3/11khu pho hai phuc thi trang phuoc hai nguyen dat do br vt",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Đã gửi",
+      "note": "",
+      "sourceRow": 25,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0022",
+      "date": "2026-10-09",
+      "customer": "Mai Vân",
+      "phone": "0766202859",
+      "address": "27kv thới bình a phương thới an ô môn TPCT",
+      "product": "Váy lụa xanh",
+      "size": "XXL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 26,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0023",
+      "date": "2026-10-09",
+      "customer": "Linh Kiều",
+      "phone": "0383198722",
+      "address": "So 19 ap phu thanh xa phu tam  soc trang",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 27,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0024",
+      "date": "2026-10-09",
+      "customer": "Như Hiền",
+      "phone": "0935774456",
+      "address": "Số 2 hoàng quốc việt, Xã Phước đồng, Nha trang , khánh hòa",
+      "product": "Váy lụa xanh",
+      "size": "L",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Đã gửi",
+      "note": "",
+      "sourceRow": 28,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "L",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0025",
+      "date": "2026-10-09",
+      "customer": "Nhung Kim",
+      "phone": "0328850510",
+      "address": "ấp 1, xã Tân hào, giồng trôm, bến tre",
+      "product": "Váy lụa xanh + Váy lụa hoa to",
+      "size": "XXL",
+      "quantity": 2,
+      "price": 558000.0,
+      "cost": 254000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 29,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa to",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0026",
+      "date": "2026-10-10",
+      "customer": "Trinh Lâm",
+      "phone": "0839553939",
+      "address": "21 đường 14 p.An Lạc A q. Bình Tân tphcm",
+      "product": "Váy lụa xanh + Váy lụa hoa tím",
+      "size": "XXL",
+      "quantity": 2,
+      "price": 558000.0,
+      "cost": 254000.0,
+      "status": "Đã gửi",
+      "note": "",
+      "sourceRow": 31,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa tím",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0027",
+      "date": "2026-10-10",
+      "customer": "Nguyễn Giàu",
+      "phone": "0918656325",
+      "address": "116 ấp Phú bình xã Phú Long huyện Châu Thành tỉnh Đồng tháp cầu mười ổi",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 33,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0028",
+      "date": "2026-10-11",
+      "customer": "Đỗ Mai",
+      "phone": "0937040128",
+      "address": "G51 khu phố 7 khu dân cư Phường Tân phong, Biên hoà, Đồng Nai",
+      "product": "Váy lụa hoa nhí",
+      "size": "XXL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 34,
+      "items": [
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0029",
+      "date": "2026-10-11",
+      "customer": "Nguyễn Thị Thanh Vân",
+      "phone": "0975852781",
+      "address": "An bình, sông phan, hàm tân, bình thuận",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 35,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0030",
+      "date": "2026-10-11",
+      "customer": "Nga Nguyen",
+      "phone": "0979830431",
+      "address": "Hẻm Nhà Thuốc cay cam tan Vĩnh Lộc tphcm",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Đã gửi",
+      "note": "",
+      "sourceRow": 36,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0031",
+      "date": "2026-10-11",
+      "customer": "Tâm Như Lê",
+      "phone": "0938290153",
+      "address": "Ấp Vĩnh Phước Phước lý cần Giuộ long an",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 37,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0032",
+      "date": "2026-10-11",
+      "customer": "Nhan Nguyen",
+      "phone": "0852529431",
+      "address": "đường nguyễn công trứ, k1 phường 8, thành phố cà mau",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 38,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0033",
+      "date": "2026-10-12",
+      "customer": "Nguyễn Thị Mai",
+      "phone": "0354107296",
+      "address": "Tổ dân phố Hải lộc, thị trấn cát Hải ,huyện cát Hải, thành phố Hải Phòng",
+      "product": "Váy lụa xanh",
+      "size": "XXL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Đã gửi",
+      "note": "",
+      "sourceRow": 39,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0034",
+      "date": "2026-10-12",
+      "customer": "Nguyễn Niềm",
+      "phone": "0909381198",
+      "address": "42/62 nguyễn giản thanh phường hoà hưng, tphcm",
+      "product": "Váy lụa xanh + Váy lụa hoa nhí",
+      "size": "3XL",
+      "quantity": 2,
+      "price": 558000.0,
+      "cost": 254000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 40,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0035",
+      "date": "2026-10-12",
+      "customer": "Nguyễn Thị Nga",
+      "phone": "0776507193",
+      "address": "10c/14 nguyen truyen thanh, quan binh thuy, phuong binh thuy, thành phố cần thơ",
+      "product": "Váy lụa hoa to",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Đã gửi",
+      "note": "",
+      "sourceRow": 42,
+      "items": [
+        {
+          "product": "Váy lụa hoa to",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0036",
+      "date": "2026-10-12",
+      "customer": "Nguyễn Lan",
+      "phone": "0984278856",
+      "address": "thôn Tân Hòa, Tân Văn, Lâm Hà, Lâm Đồng",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Đã gửi",
+      "note": "",
+      "sourceRow": 43,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0037",
+      "date": "2026-10-12",
+      "customer": "Nguyễn Đào",
+      "phone": "0903753668",
+      "address": "638 nguyễn thị định p , thạnh mỹ lợi, tp thủ đức",
+      "product": "Váy lụa xanh + Váy lụa hoa nhí",
+      "size": "3XL",
+      "quantity": 2,
+      "price": 520000.0,
+      "cost": 254000.0,
+      "status": "Giao thành công",
+      "note": "",
+      "sourceRow": 44,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 260000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 260000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0038",
+      "date": "2026-10-12",
+      "customer": "Thuý Phương Trần",
+      "phone": "0769203323",
+      "address": "khu 7, phường Quang Trung, Uông Bí, Quảng Ninh cũ",
+      "product": "Váy lụa hoa to",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Đã gửi",
+      "note": "Lấy đơn Ngân Tuyết",
+      "sourceRow": 46,
+      "items": [
+        {
+          "product": "Váy lụa hoa to",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0039",
+      "date": "2026-10-13",
+      "customer": "Thuy Nguyen",
+      "phone": "0704725226",
+      "address": "tổ 4 kp sơn thịnh, TT sóc Sơn, huyện hòn đất, Kiên Giang",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "Lấy đơn Ngân Tuyết",
+      "sourceRow": 47,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0040",
+      "date": "2026-10-13",
+      "customer": "Vĩnh Phước",
+      "phone": "0946808809",
+      "address": "Kp Suối Nhum, Phường Hắc Dịch, Phú Mỹ, Bà rịa vũng tàu",
+      "product": "Váy lụa hoa nhí",
+      "size": "L",
+      "quantity": 2,
+      "price": 558000.0,
+      "cost": 254000.0,
+      "status": "Đã tạo đơn",
+      "note": "Lấy đơn Hồ Lan  ord thêm",
+      "sourceRow": 48,
+      "items": [
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "L",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "L",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0041",
+      "date": "2026-10-13",
+      "customer": "Thạch Thị Mon Thai",
+      "phone": "0373660347",
+      "address": "ấp rọ say ,duyên hải, vĩnh long",
+      "product": "Váy lụa xanh",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Giao thành công",
+      "note": "Lấy đơn Đặng Tú Quyên",
+      "sourceRow": 50,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0042",
+      "date": "2026-10-13",
+      "customer": "Mot Le Thi",
+      "phone": "0888206334",
+      "address": "thôn nhất mỹ, xã quế lưu, hiêp đức, quảng nam",
+      "product": "Váy lụa hoa nhí",
+      "size": "3XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Mới",
+      "note": "Lấy đơn Dung Nguyễn",
+      "sourceRow": 51,
+      "items": [
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0043",
+      "date": "2026-10-13",
+      "customer": "Quế Đỗ",
+      "phone": "0965427128",
+      "address": "phúc hưng phúc thọ lâm hà lâm đồng",
+      "product": "Váy lụa xanh + Váy lụa hoa nhí + Váy lụa hoa to",
+      "size": "L",
+      "quantity": 3,
+      "price": 750000.0,
+      "cost": 381000.0,
+      "status": "Mới",
+      "note": "",
+      "sourceRow": 52,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "L",
+          "quantity": 1,
+          "price": 250000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "L",
+          "quantity": 1,
+          "price": 250000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa to",
+          "size": "L",
+          "quantity": 1,
+          "price": 250000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0044",
+      "date": "2026-10-13",
+      "customer": "Võ Kiều",
+      "phone": "0369947750",
+      "address": "Ấp vạn thành xã Bình nghị huyện gò Công Đông tỉnh tiền Giang",
+      "product": "Váy lụa xanh",
+      "size": "M",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Mới",
+      "note": "",
+      "sourceRow": 55,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "M",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0045",
+      "date": "2026-10-13",
+      "customer": "Hanh Vu",
+      "phone": "0773444799",
+      "address": "Cầu suối đá bàn 1 đường tuyến tránh KP 5 phường dương đông đặc khu Phú quốc tỉnh An Giang",
+      "product": "Váy lụa hoa to",
+      "size": "XXL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Mới",
+      "note": "",
+      "sourceRow": 56,
+      "items": [
+        {
+          "product": "Váy lụa hoa to",
+          "size": "XXL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0046",
+      "date": "2026-10-13",
+      "customer": "Trần Nga",
+      "phone": "0949370759",
+      "address": "306 nguyễn trung trực dương đông phú quốc,Ngã tư kiểm lâm",
+      "product": "Váy lụa xanh",
+      "size": "L",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Mới",
+      "note": "",
+      "sourceRow": 57,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "L",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0047",
+      "date": "2026-10-13",
+      "customer": "Định Võ",
+      "phone": "0909850158",
+      "address": "Ấp 5 xã Phước An thành phố Đồng Nai",
+      "product": "Váy lụa xanh + Váy lụa hoa nhí + Váy lụa hoa to",
+      "size": "",
+      "quantity": 3,
+      "price": 798000.0,
+      "cost": 381000.0,
+      "status": "Mới",
+      "note": "",
+      "sourceRow": 58,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "",
+          "quantity": 1,
+          "price": 266000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa nhí",
+          "size": "",
+          "quantity": 1,
+          "price": 266000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa to",
+          "size": "",
+          "quantity": 1,
+          "price": 266000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0048",
+      "date": "2026-10-14",
+      "customer": "Nguyễn Thị Duyên",
+      "phone": "0792615921",
+      "address": "Kiệt 167 Bình Kỳ, phường Hòa Quý, quận Ngũ Hành Sơn, TP. Đà Nẵng",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Mới",
+      "note": "",
+      "sourceRow": 61,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0059",
+      "date": "2026-10-14",
+      "customer": "Nguyễn Mai",
+      "phone": "0918031393",
+      "address": "23, nguyên huệ, lạc tanh, tanh linh, binh thuận",
+      "product": "Váy lụa xanh",
+      "size": "XL",
+      "quantity": 1,
+      "price": 279000.0,
+      "cost": 127000.0,
+      "status": "Mới",
+      "note": "",
+      "sourceRow": 62,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    },
+    {
+      "id": "EH-0060",
+      "date": "2026-10-14",
+      "customer": "Ngọc Lệ",
+      "phone": "0765734688",
+      "address": "169 Lê đình cẩn , Tân tạo , bình Tân ,tp . Hcm",
+      "product": "Váy lụa xanh + Váy lụa hoa tím",
+      "size": "3XL",
+      "quantity": 2,
+      "price": 558000.0,
+      "cost": 254000.0,
+      "status": "Mới",
+      "note": "",
+      "sourceRow": 63,
+      "items": [
+        {
+          "product": "Váy lụa xanh",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        },
+        {
+          "product": "Váy lụa hoa tím",
+          "size": "3XL",
+          "quantity": 1,
+          "price": 279000.0,
+          "cost": 127000.0
+        }
+      ]
+    }
+  ],
+  "expenses": [
+    {
+      "id": "ADS-001",
+      "date": "2026-10-05",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 145300.0,
+      "note": "Nhập từ sheet DOANH THU"
+    },
+    {
+      "id": "ADS-002",
+      "date": "2026-10-06",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 327977.0,
+      "note": "Nhập từ sheet DOANH THU"
+    },
+    {
+      "id": "ADS-003",
+      "date": "2026-10-07",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 312349.0,
+      "note": "Nhập từ sheet DOANH THU"
+    },
+    {
+      "id": "ADS-004",
+      "date": "2026-10-08",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 306789.0,
+      "note": "Nhập từ sheet DOANH THU"
+    },
+    {
+      "id": "ADS-005",
+      "date": "2026-10-09",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 363001.0,
+      "note": "Nhập từ sheet DOANH THU"
+    },
+    {
+      "id": "ADS-006",
+      "date": "2026-10-10",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 325731.0,
+      "note": "Nhập từ sheet DOANH THU"
+    },
+    {
+      "id": "ADS-007",
+      "date": "2026-10-11",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 422594.0,
+      "note": "Nhập từ sheet DOANH THU"
+    },
+    {
+      "id": "ADS-008",
+      "date": "2026-10-12",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 782241.0,
+      "note": "Nhập từ sheet DOANH THU"
+    },
+    {
+      "id": "ADS-009",
+      "date": "2026-10-13",
+      "category": "Quảng cáo",
+      "name": "Facebook Ads",
+      "amount": 601894.0,
+      "note": "Nhập từ sheet DOANH THU"
+    }
+  ],
+  "products": [
+    {
+      "name": "Váy lụa xanh",
+      "price": 279000.0,
+      "cost": 127000.0
+    },
+    {
+      "name": "Váy lụa hoa nhí",
+      "price": 279000.0,
+      "cost": 127000.0
+    },
+    {
+      "name": "Váy lụa hoa to",
+      "price": 279000.0,
+      "cost": 127000.0
+    },
+    {
+      "name": "Váy lụa hoa hồng",
+      "price": 279000.0,
+      "cost": 127000.0
+    },
+    {
+      "name": "Váy lụa hoa tím",
+      "price": 279000.0,
+      "cost": 127000.0
+    }
+  ],
+  "settings": {
+    "shipping": 12000,
+    "returnShipping": 7000,
+    "platformRate": 10,
+    "cardRate": 1.1
+  },
+  "undatedInbound": 146000,
+  "source": "Quản Lí Đơn hàng _ Emi House (11).xlsx"
+}
