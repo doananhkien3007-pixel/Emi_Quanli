@@ -60,7 +60,7 @@ export function RevenueChart({ daily, mode = 'costs' }: { daily: (DailyMetric | 
     setActive(Math.max(0, Math.min(chartDaily.length - 1, Math.round((event.clientX - bounds.left) / bounds.width * (chartDaily.length - 1)))));
   };
   return <div className="chart-canvas interactive-chart business-chart">
-    <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`} role="group" aria-label={`${showAll ? 'Doanh thu, chi phí và lợi nhuận' : `Doanh thu và ${mode === 'costs' ? 'chi phí' : mode === 'profit' ? 'lợi nhuận' : 'Ads'}`} theo thời gian. Dùng phím mũi tên để xem số liệu.`} onPointerLeave={() => setActive(null)}>
+    <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`} role="group" aria-label={`${showAll ? 'Doanh thu sau hoàn, chi phí và lợi nhuận' : `Doanh thu sau hoàn và ${mode === 'costs' ? 'chi phí' : mode === 'profit' ? 'lợi nhuận' : 'Ads'}`} theo thời gian. Dùng phím mũi tên để xem số liệu.`} onPointerLeave={() => setActive(null)}>
       <defs><linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#147d52" stopOpacity=".16"/><stop offset="100%" stopColor="#147d52" stopOpacity=".01"/></linearGradient></defs>
       {[0, 1, 2, 3].map(index => { const value = low + (high - low) * index / 3; return <g key={index}>
         <line x1={left} x2={width-right} y1={y(value)} y2={y(value)} stroke="#e7ecf4" strokeDasharray="3 5" />
@@ -88,7 +88,8 @@ export function RevenueChart({ daily, mode = 'costs' }: { daily: (DailyMetric | 
     {current && <div className={'chart-tooltip '+(active! > (chartDaily.length-1)/2 ? 'tooltip-left' : 'tooltip-right')} id={tooltipId} role="tooltip">
       <strong>{displayDate(current.date)}{current.endDate !== current.date && current.endDate ? ` – ${displayDate(current.endDate)}` : ''}</strong>
       <dl>
-        <div><dt><i className="revenue-dot" style={{ background: '#147d52' }}/>Doanh thu thực</dt><dd>{money(current.revenue)}</dd></div>
+        <div><dt>Tổng doanh thu chốt</dt><dd>{money(current.gross)}</dd></div>
+        <div><dt><i className="revenue-dot" style={{ background: '#147d52' }}/>Doanh thu sau hoàn</dt><dd>{money(current.revenue)}</dd></div>
         <div><dt><i className="cost-dot" style={{ background: '#d94343' }}/>Tổng chi phí</dt><dd>{money(current.costs)}</dd></div>
         <div><dt>Facebook Ads</dt><dd>{money(current.ads)}</dd></div>
         <div><dt>Đơn chốt / Thành công</dt><dd>{current.orders.length} / {current.done.length}</dd></div>
