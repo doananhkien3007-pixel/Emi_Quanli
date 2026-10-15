@@ -210,9 +210,23 @@ function OrderDetailDrawer({order,shippingFallback,returnReceived,saving,close,e
  </aside>;
 }
 function Modal({kind,title,close,children}:{kind:'order'|'spx'|'expense'|'help'|'performance';title:string;close:()=>void;children:React.ReactNode}){
- const ref=useRef<HTMLDialogElement>(null);
- useEffect(()=>{ref.current?.showModal();},[]);
- return <dialog aria-labelledby="modal-title" ref={ref} className={'modal '+(kind==='order'?'order-dialog':kind==='spx'?'compact-dialog':'')} onCancel={e=>{e.preventDefault();close();}} onClick={e=>{if(e.target===e.currentTarget)close();}}><div className="modal-heading"><div><span className="eyebrow">{kind==='order'||kind==='spx'?'QUẢN LÝ ĐƠN HÀNG':'EMI HOUSE'}</span><h2 id="modal-title">{title}</h2></div><button type="button" className="icon-button" aria-label="Đóng" onClick={close}><X size={21}/></button></div><div className="modal-body">{children}</div></dialog>;
+ const ref=useRef<HTMLElement>(null),closeRef=useRef(close);
+ useEffect(()=>{closeRef.current=close;},[close]);
+ useEffect(()=>{
+  const popup=ref.current,previousFocus=document.activeElement as HTMLElement|null,previousOverflow=document.body.style.overflow;
+  document.body.style.overflow='hidden';
+  popup?.querySelector<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled)')?.focus();
+  const keydown=(event:KeyboardEvent)=>{
+   if(event.key==='Escape'){event.preventDefault();closeRef.current();return;}
+   if(event.key!=='Tab')return;
+   const elements=Array.from(popup?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href]')||[]).filter(element=>element.getClientRects().length>0);
+   const first=elements[0],last=elements[elements.length-1];
+   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+  };
+  document.addEventListener('keydown',keydown);
+  return()=>{document.body.style.overflow=previousOverflow;document.removeEventListener('keydown',keydown);if(previousFocus?.isConnected)previousFocus.focus();};
+ },[]);
+ return <div className="modal-layer" onPointerDown={event=>{if(event.target===event.currentTarget)close();}}><section role="dialog" aria-modal="true" aria-labelledby="modal-title" ref={ref} className={'modal '+(kind==='order'?'order-dialog':kind==='spx'?'compact-dialog':'')}><div className="modal-heading"><div><span className="eyebrow">{kind==='order'||kind==='spx'?'QUẢN LÝ ĐƠN HÀNG':'EMI HOUSE'}</span><h2 id="modal-title">{title}</h2></div><button type="button" className="icon-button" aria-label="Đóng" onClick={close}><X size={21}/></button></div><div className="modal-body">{children}</div></section></div>;
 }
 function SpxForm({saving,onSave}:{saving:boolean;onSave:(spxCode:string)=>Promise<void>}){
  return <form className="spx-quick-form" onSubmit={event=>{event.preventDefault();const data=new FormData(event.currentTarget);void onSave(String(data.get('spxCode')||'').trim());}}><label>Mã vận đơn SPX <span className="required">*</span><input name="spxCode" required autoFocus maxLength={100} placeholder="Ví dụ: SPXVN012345678"/></label><div className="modal-actions"><span/><button className="button primary" disabled={saving}>{saving?<LoaderCircle size={16} className="spin"/>:<Check size={16}/>} {saving?'Đang lưu...':'Xác nhận'}</button></div></form>;

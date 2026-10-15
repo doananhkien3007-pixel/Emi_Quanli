@@ -98,9 +98,18 @@ main{padding:16px 22px 24px}
  .orders-panel .spx-code{padding:3px 6px;font-size:8.5px}
 }
 
-/* Give the mobile order dialog a definite flex height so its form cannot collapse. */
+/* Cross-browser popup layer. This avoids WebKit's unreliable native dialog top layer. */
+.modal-layer{position:fixed;inset:0;z-index:100;display:grid;place-items:center;box-sizing:border-box;padding:20px;background:#1d30264f;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);overscroll-behavior:contain}
+.modal-layer>.modal{position:relative;display:flex;flex-direction:column;box-sizing:border-box;width:min(680px,100%);max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);margin:0;overflow:hidden}
+.modal-layer>.order-dialog{width:min(1120px,100%)}
+.modal-layer>.compact-dialog{width:min(460px,100%)}
+.modal-layer .modal-body{min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media(max-width:1180px){.modal-layer{padding:14px}.modal-layer>.modal{max-height:calc(100vh - 28px);max-height:calc(100dvh - 28px)}.modal-layer>.order-dialog{width:min(960px,100%)}}
+
+/* Give the mobile order popup a definite flex height so its form cannot collapse. */
 @media(max-width:620px){
- dialog.order-dialog[open]{position:fixed;inset:0;box-sizing:border-box;width:100vw;max-width:100vw;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;margin:0;border-radius:0;overflow:hidden}
+ .modal-layer{padding:0;place-items:stretch}
+ .modal-layer>.order-dialog{position:relative;inset:auto;box-sizing:border-box;width:100vw;max-width:100vw;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;margin:0;border-radius:0;overflow:hidden}
  .order-dialog .modal-heading{padding-top:calc(14px + env(safe-area-inset-top))}
  .order-dialog .modal-body{display:block;flex:1 1 0;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
  .order-dialog .quick-order-form{min-height:100%}
