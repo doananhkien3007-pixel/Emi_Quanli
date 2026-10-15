@@ -58,7 +58,7 @@ export default function Dashboard({localStorageMode=false}:{localStorageMode?:bo
  const cohort=useMemo(()=>shop?cohortMetrics(shop,start,end):null,[shop,start,end]);
  const daily=useMemo(()=>shop?financialSeries(shop,start,end,'cohort'):[],[shop,start,end]);
  const dailyNewestFirst=[...daily].sort((a,b)=>b.date.localeCompare(a.date));
- const dayPerformance=useMemo(()=>shop&&performanceDay?{metric:cohortFinancialMetrics(shop,performanceDay,performanceDay),quality:cohortMetrics(shop,performanceDay,performanceDay)}:null,[shop,performanceDay]);
+ const dayPerformance=useMemo(()=>{if(!shop||!performanceDay)return null;const metric=cohortFinancialMetrics(shop,performanceDay,performanceDay);return {metric:{...metric,provisional:metric.pending>0||metric.missingCost.length>0},quality:cohortMetrics(shop,performanceDay,performanceDay)};},[shop,performanceDay]);
  const inventory=useMemo(()=>shop?inventorySnapshot(shop):null,[shop]);
  const operations=useMemo(()=>shop?todayOperations(shop,todayKey):null,[shop,todayKey]);
  const spxQueue=shop?.orders.filter(needsSpx)||[];

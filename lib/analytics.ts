@@ -4,6 +4,15 @@ export const shopToday = () => new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit',
 }).format(new Date());
 
+export const shopTimestamp = (date = new Date()) => {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+  }).formatToParts(date);
+  const value = (type: Intl.DateTimeFormatPartTypes) => parts.find(part => part.type === type)?.value || '00';
+  return `${value('year')}-${value('month')}-${value('day')}T${value('hour')}:${value('minute')}:${value('second')}+07:00`;
+};
+
 export function offsetDay(date: string, days: number) {
   const result = new Date(`${date}T12:00:00Z`);
   result.setUTCDate(result.getUTCDate() + days);
@@ -124,7 +133,12 @@ export function financialSeries(shop: Shop, from: string, to: string, basis:'eve
   return Array.from({ length: Math.ceil(totalDays / step) }, (_, index) => {
     const date = offsetDay(from, index * step);
     const endDate = offsetDay(from, Math.min(totalDays - 1, (index + 1) * step - 1));
-    return { date, endDate, ...(basis==='cohort'?cohortFinancialMetrics:financialMetrics)(shop, date, endDate) };
+    const metric=(basis==='cohort'?cohortFinancialMetrics:financialMetrics)(shop,date,endDate);
+    // An unallocated historical cost affects the period total, but cannot make every
+    // completed close-date bucket provisional. Daily cohort rows are provisional only
+    // while an order is still open or a recognized order is missing its cost.
+    const provisional=basis==='cohort'?metric.pending>0||metric.missingCost.length>0:metric.provisional;
+    return { date, endDate, ...metric, provisional };
   });
 }
 

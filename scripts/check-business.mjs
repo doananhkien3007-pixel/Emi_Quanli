@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { todayOperations, needsSpx, cohortFinancialMetrics, activityMetrics, financialMetrics, financialSeries, previousPeriod, cohortMetrics, isStaleOrder } from '../lib/analytics.ts';
+import { todayOperations, needsSpx, cohortFinancialMetrics, activityMetrics, financialMetrics, financialSeries, previousPeriod, cohortMetrics, isStaleOrder, shopTimestamp } from '../lib/analytics.ts';
 import { createdDate, receiveProcurementBatch, inventorySnapshot, reconcileInventory, setProcurementStatus, setReturnReceived } from '../lib/model.ts';
 import { normalizeShop, prepareShopUpdate, shopSchema } from '../lib/shop-validation.ts';
 const seed = JSON.parse(readFileSync(new URL('../db/seed.json', import.meta.url)));
@@ -85,6 +85,7 @@ check('Unchanged orders keep update timestamps even when JSON properties have a 
 });
 check('UTC creation timestamps map to Vietnam business dates',()=>{
  assert.equal(createdDate({...order,created_at:'2026-10-02T18:30:00Z'}),'2026-10-03');
+ assert.equal(shopTimestamp(new Date('2026-10-02T18:30:45Z')),'2026-10-03T01:30:45+07:00');
 });
 check('One batch tick receives all missing SKUs once and leaves stock reservations intact',()=>{
  const other={...newOrder,id:'TEST-2',items:[{...product,id:'item2',color:'Xanh',quantity:3}],quantity:3};
@@ -123,5 +124,7 @@ check('Cohort retains final revenue and costs on close date, including later ret
  const returned=cohortFinancialMetrics({...shop,orders:[{...order,status:'Hoàn',returned_at:'2026-10-05'}]},'2026-10-01','2026-10-01');assert.equal(returned.revenue,0);assert.equal(returned.cogs,0);assert.equal(returned.done.length,0);assert.equal(returned.returnShipping,7000);
  assert.equal(cohortFinancialMetrics({...shop,orders:[newOrder]},'2026-10-03','2026-10-03').provisional,true);
  const series=financialSeries(shop,'2026-10-01','2026-10-05','cohort');assert.equal(series.reduce((sum,d)=>sum+d.profit,0),closed.profit);
+ const withUndated={...shop,undatedInbound:146000};const completedDay=financialSeries(withUndated,'2026-10-01','2026-10-01','cohort')[0];assert.equal(completedDay.pending,0);assert.equal(completedDay.provisional,false);
+ const pendingDay=financialSeries({...withUndated,orders:[newOrder]},'2026-10-03','2026-10-03','cohort')[0];assert.equal(pendingDay.provisional,true);
 });
 console.log(`\n${checks} business scenarios passed.`);

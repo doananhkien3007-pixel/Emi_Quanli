@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from '../../chatgpt-auth';
 import { normalizeShop, shopSchema, prepareShopUpdate } from '../../../lib/shop-validation';
-import { shopToday } from '../../../lib/analytics';
+import { shopTimestamp, shopToday } from '../../../lib/analytics';
 import { type Shop } from '../../../lib/model';
 export const dynamic = 'force-dynamic';
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
@@ -41,7 +41,7 @@ export async function PUT(request:Request){
  let input;try{input=shopSchema.safeParse(await request.json());}catch{return json({error:'Dữ liệu không hợp lệ.'},400);}
  if(!input.success)return json({error:'Kiểm tra lại ngày, số tiền và các trường bắt buộc.'},400);
  const {data,revision}=input.data;
- const receivedAt=new Date().toISOString(),businessDay=shopToday();
+ const receivedAt=shopTimestamp(),businessDay=shopToday();
  const config=supabaseConfig();
  if(config){
   try{
