@@ -66,26 +66,34 @@ main{padding:16px 22px 24px}
 
 /* Compact order cards on phones, shared by Overview and Orders pages. */
 @media(max-width:700px){
- .orders-panel tbody tr{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;gap:7px 10px;padding:11px 12px}
- .orders-panel td:nth-child(1){grid-column:1;grid-row:1;gap:6px;min-height:28px}
- .orders-panel td:nth-child(1) .order-id{font-size:11px}
- .orders-panel td:nth-child(1) small{font-size:9px}
- .orders-panel td:nth-child(6){grid-column:2;grid-row:1;align-self:start}
- .orders-panel .status-select{min-height:28px;padding-inline:7px 5px}
- .orders-panel .status-select>select{max-width:126px;padding-right:14px;font-size:10px;line-height:18px}
+ .orders-panel .panel-title{padding:12px 14px;min-height:0}
+ .orders-panel .panel-title h2{font-size:13px}
+ .orders-panel .table-scroll{overflow:visible}
+ .orders-panel table,.orders-panel tbody{display:block;min-width:0;white-space:normal}
+ .orders-panel thead{display:none}
+ .orders-panel tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto;align-items:center;gap:4px 10px;padding:9px 12px;border-top:0;border-bottom:1px solid #e9edf3}
+ .orders-panel td{display:block;min-width:0;height:auto;padding:0;border:0;margin:0}
+ .orders-panel td:nth-child(1){grid-column:1;grid-row:1;display:flex;align-items:center;gap:7px;min-height:26px}
+ .orders-panel td:nth-child(1) .order-id{font-size:11px;line-height:1.2}
+ .orders-panel td:nth-child(1) small{margin:0;font-size:9px;line-height:1.2;white-space:nowrap}
+ .orders-panel td:nth-child(6){grid-column:2;grid-row:1;justify-self:end;align-self:center}
+ .orders-panel .status-select{min-height:26px;padding:2px 6px;gap:4px}
+ .orders-panel .status-select>select{max-width:116px;padding:0 14px 0 0;font-size:10px;line-height:18px}
+ .orders-panel .status-select>svg{width:11px;height:11px}
  .orders-panel td:nth-child(2){grid-column:1;grid-row:2;align-self:center}
- .orders-panel .customer-cell{gap:8px}
- .orders-panel .customer-avatar{width:27px;height:27px}
- .orders-panel .customer-cell strong{font-size:11.5px}
- .orders-panel .customer-cell small{margin-top:1px;font-size:9px;line-height:1.25}
+ .orders-panel .customer-cell{display:flex;align-items:center;gap:7px;min-width:0}
+ .orders-panel .customer-avatar{width:26px;height:26px;flex:0 0 26px}
+ .orders-panel .customer-cell>div{display:flex;align-items:baseline;gap:7px;min-width:0;overflow:hidden}
+ .orders-panel .customer-cell strong{font-size:11px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .orders-panel .customer-cell small{margin:0;font-size:9px;line-height:1.25;white-space:nowrap}
  .orders-panel td:nth-child(7){grid-column:2;grid-row:2;align-self:center;justify-self:end}
- .orders-panel td:nth-child(7) .icon-button{width:30px;height:30px}
- .orders-panel td:nth-child(3){grid-column:1;grid-row:3;padding-left:35px;min-width:0}
- .orders-panel .product-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px}
- .orders-panel td:nth-child(3) small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;font-size:9px;line-height:1.3}
+ .orders-panel td:nth-child(7) .icon-button{width:28px;height:28px}
+ .orders-panel td:nth-child(3){grid-column:1;grid-row:3;min-width:0;padding-left:33px}
+ .orders-panel .product-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;line-height:1.25}
+ .orders-panel td:nth-child(3) small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;font-size:9px;line-height:1.25}
  .orders-panel td:nth-child(4){grid-column:2;grid-row:3;align-self:center;padding:0;border:0;text-align:right;white-space:nowrap}
- .orders-panel td:nth-child(4) strong{font-size:12.5px}
- .orders-panel td:nth-child(5){grid-column:1/-1;grid-row:4;padding:1px 0 0 35px;border:0}
+ .orders-panel td:nth-child(4) strong{font-size:12px}
+ .orders-panel td:nth-child(5){grid-column:1/-1;grid-row:4;padding:2px 0 0 33px;border:0}
  .orders-panel td:nth-child(5):has(.spx-empty){display:none}
- .orders-panel .spx-code{padding:4px 6px;font-size:8.5px}
+ .orders-panel .spx-code{padding:3px 6px;font-size:8.5px}
 }
