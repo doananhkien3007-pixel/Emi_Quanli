@@ -24,10 +24,11 @@ async function supabaseRpc<T>(name:string,body:Record<string,unknown>){
 }
 // Imported customer records belong to existing owners. Never copy them to a new account.
 const emptyShop:Shop={orders:[],expenses:[],products:[],settings:{shipping:0,returnShipping:0,platformRate:0,cardRate:0,returnRateThreshold:15},undatedInbound:0,source:'Chưa nhập dữ liệu'};
+const withOrderCreationTimes=(shop:Shop,times:Record<string,string>)=>({...shop,orders:shop.orders.map(order=>times[order.id]?{...order,created_at:times[order.id]}:order)});
 export async function GET(){
  const config=supabaseConfig();
  if(config){
-  try{const value=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});return json({data:normalizeShop(value.data),revision:Number(value.revision)});}
+  try{const value=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});const times=await supabaseRpc<Record<string,string>>('get_emi_order_creation_times',{p_slug:config.slug});return json({data:normalizeShop(withOrderCreationTimes(value.data,times)),revision:Number(value.revision)});}
   catch{return json({error:'Chưa tải được dữ liệu từ Supabase.'},503);}
  }
  const user=await getChatGPTUser();if(!user)return json({error:'Vui lòng đăng nhập để xem dữ liệu.'},401);
@@ -47,9 +48,10 @@ export async function PUT(request:Request){
   try{
    const current=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});
    if(Number(current.revision)!==revision)return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
-   const update=prepareShopUpdate(normalizeShop(current.data),data as Shop,businessDay,receivedAt);
+   const times=await supabaseRpc<Record<string,string>>('get_emi_order_creation_times',{p_slug:config.slug});
+   const update=prepareShopUpdate(normalizeShop(withOrderCreationTimes(current.data,times)),data as Shop,businessDay,receivedAt);
    if(update.error)return json({error:update.error},400);
-   const saved=await supabaseRpc<{data:Shop;revision:number}>('save_emi_shop',{p_slug:config.slug,p_expected_revision:revision,p_data:update.data});
+   const saved=await supabaseRpc<{data:Shop;revision:number}>('save_emi_shop_with_creation_times',{p_slug:config.slug,p_expected_revision:revision,p_data:update.data});
    return json({data:normalizeShop(saved.data),revision:Number(saved.revision)});
   }catch(error){
    const code=error instanceof Error&&'code' in error?String(error.code):'';

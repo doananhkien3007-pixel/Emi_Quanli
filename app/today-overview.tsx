@@ -1,6 +1,6 @@
 'use client';
 import { useId, useState } from 'react';
-import { ArrowRight, Megaphone, Target, TrendingUp, Package } from 'lucide-react';
+import { ArrowRight, Megaphone, Target, TrendingUp, Package, QrCode, PackageSearch, Clock3 } from 'lucide-react';
 import { money, shortMoney } from '../lib/model';
 import type { todayOperations } from '../lib/analytics';
 
@@ -17,8 +17,12 @@ export function TodayOverview({data,spxCount,neededCount,staleCount,onSpx,onNeed
  const nonEmptyStatuses=statuses.filter(status=>status.orders.length>0).length;
  return <div className="today-overview">
   <section className="today-tasks" aria-labelledby="today-tasks-title">
-   <div className="today-tasks-title"><h2 id="today-tasks-title">Cần xử lý</h2><span>{spxCount+neededCount+staleCount} việc</span></div>
-   <div className="today-task-actions"><button onClick={onSpx}><span>Chưa tạo đơn SPX</span><strong>{spxCount}</strong><ArrowRight size={14}/></button><button onClick={onNeeded}><span>Cần lấy hàng từ xưởng</span><strong>{neededCount}</strong><ArrowRight size={14}/></button><button onClick={onStale}><span>Quá 3 ngày chưa giao</span><strong>{staleCount}</strong><ArrowRight size={14}/></button></div>
+   <div className="today-tasks-title"><div><span className="today-tasks-kicker">ƯU TIÊN HÔM NAY</span><h2 id="today-tasks-title">Cần xử lý</h2><p>Những việc nên hoàn tất trước</p></div><strong>{spxCount+neededCount+staleCount}<small>việc</small></strong></div>
+   <div className="today-task-actions">
+    <button className="today-task-card task-spx" onClick={onSpx}><span className="today-task-icon"><QrCode size={18}/></span><span className="today-task-copy"><b>Chưa tạo đơn SPX</b><small>Tạo mã để sẵn sàng gửi hàng</small></span><strong>{spxCount}</strong><ArrowRight size={16}/></button>
+    <button className="today-task-card task-stock" onClick={onNeeded}><span className="today-task-icon"><PackageSearch size={18}/></span><span className="today-task-copy"><b>Cần lấy hàng từ xưởng</b><small>Bổ sung hàng còn thiếu cho đơn</small></span><strong>{neededCount}</strong><ArrowRight size={16}/></button>
+    <button className="today-task-card task-stale" onClick={onStale}><span className="today-task-icon"><Clock3 size={18}/></span><span className="today-task-copy"><b>Quá 3 ngày chưa giao</b><small>Kiểm tra tiến độ và cập nhật đơn</small></span><strong>{staleCount}</strong><ArrowRight size={16}/></button>
+   </div>
   </section>
   <section className="panel today-hourly"><div className="panel-title"><div><h2>Doanh thu theo giờ hôm nay</h2><p>Doanh số đơn chốt hôm nay</p></div><strong className="today-revenue">{money(data.revenue)}</strong></div>
    <div className="today-chart" onPointerLeave={()=>setActive(null)}>
@@ -31,7 +35,7 @@ export function TodayOverview({data,spxCount,neededCount,staleCount,onSpx,onNeed
     </svg>
     {selected&&<div className="hourly-tooltip" role="tooltip" style={{left:`${Math.max(17,Math.min(83,x(selected.hour)/710*100))}%`}}><span>{String(selected.hour).padStart(2,'0')}:00 – {String(selected.hour).padStart(2,'0')}:59</span><strong>{money(selected.value)}</strong><small><i/>{selected.count} đơn chốt</small></div>}
     </div>
-    <div className="hourly-readout"><span>Giờ Việt Nam · chạm để xem chi tiết</span>{data.unknownCount>0&&<span>{data.unknownCount} đơn chưa có giờ · {money(data.unknownValue)}</span>}</div>
+    <div className="hourly-readout"><span>Giờ Việt Nam · dữ liệu từ Supabase</span>{data.unknownCount>0&&<span>{data.unknownCount} đơn chưa có giờ trên Supabase · {money(data.unknownValue)}</span>}</div>
    </div>
   </section>
   <section className="panel today-status"><div className="panel-title"><h2>Trạng thái hôm nay</h2></div>
