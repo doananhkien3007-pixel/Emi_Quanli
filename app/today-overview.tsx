@@ -5,7 +5,7 @@ import { money, shortMoney } from '../lib/model';
 import type { todayOperations } from '../lib/analytics';
 
 type Operations=ReturnType<typeof todayOperations>;
-export function TodayOverview({data,spxCount,neededCount,onSpx,onNeeded,onAds}:{data:Operations;spxCount:number;neededCount:number;onSpx:()=>void;onNeeded:()=>void;onAds:()=>void}){
+export function TodayOverview({data,spxCount,neededCount,staleCount,onSpx,onNeeded,onStale,onAds}:{data:Operations;spxCount:number;neededCount:number;staleCount:number;onSpx:()=>void;onNeeded:()=>void;onStale:()=>void;onAds:()=>void}){
  const [active,setActive]=useState<number|null>(null),gradient=useId().replaceAll(':','');
  const max=Math.max(...data.hours.map(hour=>hour.value),1)*1.15;
  const x=(hour:number)=>50+hour/23*630,y=(value:number)=>156-value/max*128;
@@ -17,8 +17,8 @@ export function TodayOverview({data,spxCount,neededCount,onSpx,onNeeded,onAds}:{
  const nonEmptyStatuses=statuses.filter(status=>status.orders.length>0).length;
  return <div className="today-overview">
   <section className="today-tasks" aria-labelledby="today-tasks-title">
-   <div className="today-tasks-title"><h2 id="today-tasks-title">Cần xử lý</h2><span>{spxCount+neededCount} việc</span></div>
-   <div className="today-task-actions"><button onClick={onSpx}><span>Chưa tạo đơn SPX</span><strong>{spxCount}</strong><ArrowRight size={14}/></button><button onClick={onNeeded}><span>Cần lấy hàng từ xưởng</span><strong>{neededCount}</strong><ArrowRight size={14}/></button></div>
+   <div className="today-tasks-title"><h2 id="today-tasks-title">Cần xử lý</h2><span>{spxCount+neededCount+staleCount} việc</span></div>
+   <div className="today-task-actions"><button onClick={onSpx}><span>Chưa tạo đơn SPX</span><strong>{spxCount}</strong><ArrowRight size={14}/></button><button onClick={onNeeded}><span>Cần lấy hàng từ xưởng</span><strong>{neededCount}</strong><ArrowRight size={14}/></button><button onClick={onStale}><span>Quá 3 ngày chưa giao</span><strong>{staleCount}</strong><ArrowRight size={14}/></button></div>
   </section>
   <section className="panel today-hourly"><div className="panel-title"><div><h2>Doanh thu theo giờ hôm nay</h2><p>Doanh số đơn chốt hôm nay</p></div><strong className="today-revenue">{money(data.revenue)}</strong></div>
    <div className="today-chart" onPointerLeave={()=>setActive(null)}>

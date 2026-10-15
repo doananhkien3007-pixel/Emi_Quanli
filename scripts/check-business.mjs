@@ -76,7 +76,7 @@ check('Changing default fees preserves historical costs and fee rates',()=>{
 });
 check('All-time immutable source and stale queue boundaries',()=>{
  const before=JSON.stringify(seed);normalizeShop(seed);assert.equal(JSON.stringify(seed),before);
- assert.equal(isStaleOrder({...newOrder,updated_at:'2026-10-03'},'2026-10-06'),true);assert.equal(isStaleOrder({...newOrder,updated_at:'2026-10-04'},'2026-10-06'),false);assert.equal(isStaleOrder(order,'2026-10-06'),false);
+ assert.equal(isStaleOrder({...newOrder,date:'2026-10-03',created_at:'2026-10-03T10:00:00+07:00',updated_at:'2026-10-06'},'2026-10-06'),true);assert.equal(isStaleOrder({...newOrder,date:'2026-10-04',created_at:'2026-10-04T10:00:00+07:00'},'2026-10-06'),false);assert.equal(isStaleOrder(order,'2026-10-06'),false);
 });
 check('Unchanged orders keep update timestamps even when JSON properties have a different order',()=>{
  const before=normalizeShop({...base,orders:[{...order,updated_at:'2026-10-03'}]});

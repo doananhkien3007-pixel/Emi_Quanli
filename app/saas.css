@@ -100,6 +100,7 @@ main{max-width:1680px;padding:28px 30px 40px}.page-heading,.overview-heading{mar
 .business-result-heading small{color:#8b98aa;font-size:10px;text-align:right}
 .analysis-table .profit-value.profit-gain{color:#07845c}.analysis-table .profit-value.profit-loss{color:#dc4264}.analysis-table .profit-value.profit-neutral{color:#64748b}
 .business-chart .chart-tooltip{width:280px;max-width:calc(100% - 30px)}.business-chart .chart-tooltip dl{min-width:0}.business-chart .chart-tooltip dl>div{gap:16px}.business-chart .chart-tooltip dt{min-width:0;line-height:1.4}.business-chart .chart-tooltip dd{flex:0 0 auto}
+@media(max-width:700px){.today-task-actions button:last-child{grid-column:1/-1}}
 .business-metric-grid,.business-support-grid{display:grid;gap:10px;min-width:0}
 .business-metric-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .business-support-grid{grid-template-columns:repeat(5,minmax(0,1fr))}

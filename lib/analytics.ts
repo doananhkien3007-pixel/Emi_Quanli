@@ -153,7 +153,7 @@ export function cohortMetrics(shop: Shop, from: string, to: string) {
 
 export function isStaleOrder(order: Order, today: string) {
   return ['Mới', 'Đã tạo đơn', 'Đã gửi'].includes(order.status)
-    && eventDate(order.updated_at || order.shipped_at || order.created_at || order.date) <= offsetDay(today, -3);
+    && createdDate(order) <= offsetDay(today, -3);
 }
 
 export type CohortFinancialMetric = ReturnType<typeof cohortFinancialMetrics>;
