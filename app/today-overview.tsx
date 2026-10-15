@@ -1,12 +1,14 @@
 'use client';
 import { useId, useState } from 'react';
-import { ArrowRight, Megaphone, Target, TrendingUp, Package, QrCode, PackageSearch, Clock3 } from 'lucide-react';
+import { ArrowRight, ChevronDown, Megaphone, Target, TrendingUp, Package, QrCode, PackageSearch, Clock3 } from 'lucide-react';
 import { money, shortMoney } from '../lib/model';
 import type { todayOperations } from '../lib/analytics';
 
 type Operations=ReturnType<typeof todayOperations>;
 export function TodayOverview({data,spxCount,neededCount,staleCount,onSpx,onNeeded,onStale,onAds}:{data:Operations;spxCount:number;neededCount:number;staleCount:number;onSpx:()=>void;onNeeded:()=>void;onStale:()=>void;onAds:()=>void}){
- const [active,setActive]=useState<number|null>(null),gradient=useId().replaceAll(':','');
+ const [active,setActive]=useState<number|null>(null);
+ const [tasksOpen,setTasksOpen]=useState(false);
+ const gradient=useId().replaceAll(':',''),tasksId=useId().replaceAll(':','');
  const max=Math.max(...data.hours.map(hour=>hour.value),1)*1.15;
  const x=(hour:number)=>50+hour/23*630,y=(value:number)=>156-value/max*128;
  const points=data.hours.map(hour=>`${x(hour.hour)},${y(hour.value)}`).join(' ');
@@ -16,9 +18,9 @@ export function TodayOverview({data,spxCount,neededCount,staleCount,onSpx,onNeed
  const selected=active===null?null:data.hours[active];
  const nonEmptyStatuses=statuses.filter(status=>status.orders.length>0).length;
  return <div className="today-overview">
-  <section className="today-tasks" aria-labelledby="today-tasks-title">
-   <div className="today-tasks-title"><div><span className="today-tasks-kicker">ƯU TIÊN HÔM NAY</span><h2 id="today-tasks-title">Cần xử lý</h2><p>Những việc nên hoàn tất trước</p></div><strong>{spxCount+neededCount+staleCount}<small>việc</small></strong></div>
-   <div className="today-task-actions">
+  <section className={`today-tasks ${tasksOpen?'tasks-open':'tasks-collapsed'}`} aria-labelledby="today-tasks-title">
+   <div className="today-tasks-title"><div><span className="today-tasks-kicker">ƯU TIÊN HÔM NAY</span><h2 id="today-tasks-title">Cần xử lý</h2><p>Những việc nên hoàn tất trước</p></div><strong>{spxCount+neededCount+staleCount}<small>việc</small></strong><button type="button" className="today-tasks-toggle" aria-expanded={tasksOpen} aria-controls={tasksId} onClick={()=>setTasksOpen(open=>!open)}><span>{tasksOpen?'Thu gọn':'Mở danh sách'}</span><ChevronDown size={16}/></button></div>
+   <div className="today-task-actions" id={tasksId}>
     <button className="today-task-card task-spx" onClick={onSpx}><span className="today-task-icon"><QrCode size={18}/></span><span className="today-task-copy"><b>Chưa tạo đơn SPX</b><small>Tạo mã để sẵn sàng gửi hàng</small></span><strong>{spxCount}</strong><ArrowRight size={16}/></button>
     <button className="today-task-card task-stock" onClick={onNeeded}><span className="today-task-icon"><PackageSearch size={18}/></span><span className="today-task-copy"><b>Cần lấy hàng từ xưởng</b><small>Bổ sung hàng còn thiếu cho đơn</small></span><strong>{neededCount}</strong><ArrowRight size={16}/></button>
     <button className="today-task-card task-stale" onClick={onStale}><span className="today-task-icon"><Clock3 size={18}/></span><span className="today-task-copy"><b>Quá 3 ngày chưa giao</b><small>Kiểm tra tiến độ và cập nhật đơn</small></span><strong>{staleCount}</strong><ArrowRight size={16}/></button>
