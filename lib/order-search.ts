@@ -46,9 +46,13 @@ function editDistanceWithin(left: string, right: string, limit: number) {
 }
 
 function tokenMatches(queryToken: string, candidateToken: string) {
-  if (candidateToken.includes(queryToken)) return true;
-  if (queryToken.length < 3) return false;
-  const tolerance = queryToken.length >= 6 ? 2 : 1;
+  if (candidateToken === queryToken) return true;
+  if (queryToken.length <= 2) return false;
+  if (candidateToken.startsWith(queryToken)) return true;
+  if (queryToken.length >= 4 && candidateToken.includes(queryToken)) return true;
+  if (queryToken.length === 3) return false;
+  if (candidateToken[0] !== queryToken[0]) return false;
+  const tolerance = queryToken.length >= 8 ? 2 : 1;
   return editDistanceWithin(queryToken, candidateToken, tolerance);
 }
 
@@ -56,22 +60,25 @@ export function matchesOrderSearch(order: Order, query: string) {
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) return true;
 
-  const values = [
+  const identifiers = [
     order.id,
-    order.customer,
     order.phone,
-    order.address,
-    order.product,
     order.spxCode,
-    order.status,
-    order.note,
+  ].map(normalizeSearchText).filter(Boolean);
+  const textValues = [
+    order.customer,
+    order.product,
     ...order.items.flatMap(item => [item.product, item.color, item.size]),
   ];
-  const normalizedValues = values.map(normalizeSearchText).filter(Boolean);
+  const normalizedValues = textValues.map(normalizeSearchText).filter(Boolean);
   const combined = normalizedValues.join(' ');
   const compactQuery = normalizedQuery.replaceAll(' ', '');
 
-  if (combined.includes(normalizedQuery) || normalizedValues.some(value => value.replaceAll(' ', '').includes(compactQuery))) {
+  if (identifiers.some(value => value.replaceAll(' ', '').includes(compactQuery))) {
+    return true;
+  }
+
+  if ((normalizedQuery.length >= 3 || normalizedQuery.includes(' ')) && normalizedValues.some(value => value.includes(normalizedQuery))) {
     return true;
   }
 
