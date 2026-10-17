@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutDashboard, ShoppingBag, ChartNoAxesCombined, Wallet, Shirt, Settings, Search, Plus, ChevronDown, ArrowUpRight, ArrowRight, Download, CalendarDays, X, Check, Leaf, RefreshCw, CircleHelp, ChevronLeft, ChevronRight, Menu, TrendingUp, CircleDollarSign, Ellipsis, Trash2, LoaderCircle, UserRound, Package, Megaphone, Coins, MapPin, Phone, Warehouse, Copy, AlertTriangle } from 'lucide-react';
-import { createdDate, eventDate, inventorySnapshot, money, receiveProcurementBatch, statuses, type Shop, type Order, type Expense, type Item } from '../lib/model';
+import { createdDate, eventDate, inventorySnapshot, money, receiveProcurementBatch, statuses, transitionOrderStatus, type Shop, type Order, type Expense, type Item } from '../lib/model';
 import { DashboardSkeleton, EmptyState as Empty, Stat } from './dashboard-presentation';
 import { AdPerformance, BusinessAnalysis, BusinessResult, DataQualityNote, DismissibleNotice, FinanceBreakdown, OrderQuality } from './business-panels';
 import { TodayOverview } from './today-overview';
@@ -48,7 +48,7 @@ export default function Dashboard({localStorageMode=false}:{localStorageMode?:bo
  useEffect(()=>{if(!modal)return;const onKey=(e:KeyboardEvent)=>{if(e.key==='Escape'&&!saving){setModal(null);setError('');}};document.addEventListener('keydown',onKey);return()=>document.removeEventListener('keydown',onKey);},[modal,saving]);
  useEffect(()=>{if(!detailOrder||modal)return;const onKey=(e:KeyboardEvent)=>{if(e.key==='Escape')setDetailOrder(null);};document.addEventListener('keydown',onKey);return()=>document.removeEventListener('keydown',onKey);},[detailOrder,modal]);
  async function persist(next:Shop){if(saving)return false;setSaving(true);setError('');try{if(localStorageMode){const nextRevision=revision+1;localStorage.setItem(localShopKey,JSON.stringify(next));localStorage.setItem(localShopKey+'-revision',String(nextRevision));setShop(next);setDetailOrder(current=>current?next.orders.find(order=>order.id===current.id)||null:null);setRevision(nextRevision);toast('Đã lưu trên trình duyệt này');return true;}const r=await fetch('/api/shop',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision,data:next})});const value=await r.json() as {revision:number;data?:Shop;error?:string};if(!r.ok)throw new Error(value.error||'Chưa lưu được. Vui lòng thử lại.');const saved=value.data||next;setShop(saved);setDetailOrder(current=>current?saved.orders.find(order=>order.id===current.id)||null:null);setRevision(value.revision);toast('Đã lưu thay đổi');return true;}catch(e){setError(e instanceof Error?e.message:'Không thể kết nối.');return false;}finally{setSaving(false);}}
- async function changeOrderStatus(orderId:string,status:string){if(!shop||saving)return;const selected=shop.orders.find(order=>order.id===orderId);if(status==='Đã tạo đơn'&&!selected?.spxCode){setEditingOrder(selected||null);setError('');setModal('spx');return;}const next={...shop,orders:shop.orders.map(order=>order.id===orderId?{...order,status}:order)};await persist(next);}
+ async function changeOrderStatus(orderId:string,status:string){if(!shop||saving)return;const selected=shop.orders.find(order=>order.id===orderId);if(status==='Đã tạo đơn'&&!selected?.spxCode){setEditingOrder(selected||null);setError('');setModal('spx');return;}const next={...shop,orders:shop.orders.map(order=>order.id===orderId?transitionOrderStatus(order,status,today()):order)};if(await persist(next)&&status==='Giao thành công')toast('Đã giao thành công · doanh thu và lợi nhuận đã cập nhật');}
  function go(id:string){if(id==='overview')preset('today');else if(id==='revenue')preset('30d');else if(id==='orders')preset('all');setPage(id);setQuery('');setFilter('Tất cả');setQueueFilter('all');setOrderDateBasis('created');setDetailOrder(null);setMobile(false);window.scrollTo({top:0,behavior:'instant'});}
  function showAllOrders(){const currentQuery=query;go('orders');if(currentQuery)setQuery(currentQuery);}
  function newOrder(){if(shop&&!shop.products.length){go('products');toast('Thêm sản phẩm đầu tiên trước khi tạo đơn');return;}setEditingOrder(null);setError('');setModal('order');}
@@ -143,7 +143,7 @@ export default function Dashboard({localStorageMode=false}:{localStorageMode?:bo
    order={editingOrder}
    shop={shop}
    saving={saving}
-   onSave={async order=>{const next={...shop,orders:editingOrder?shop.orders.map(current=>current.id===order.id?order:current):[...shop.orders,order]};if(await persist(next))setModal(null);}}
+   onSave={async order=>{const savedOrder=transitionOrderStatus(order,order.status,today(),editingOrder?.status);const next={...shop,orders:editingOrder?shop.orders.map(current=>current.id===savedOrder.id?savedOrder:current):[...shop.orders,savedOrder]};if(await persist(next))setModal(null);}}
    onDelete={async()=>{if(editingOrder&&await persist({...shop,orders:shop.orders.filter(order=>order.id!==editingOrder.id)})){setDetailOrder(null);setModal(null);}}}
   />}
   {modal==='spx'&&shop&&editingOrder&&<SpxForm saving={saving} onSave={async spxCode=>{const next={...shop,orders:shop.orders.map(order=>order.id===editingOrder.id?{...order,status:'Đã tạo đơn',spxCode}:order)};if(await persist(next))setModal(null);}}/>}

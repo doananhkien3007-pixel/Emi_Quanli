@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { todayOperations, needsSpx, cohortFinancialMetrics, activityMetrics, financialMetrics, financialSeries, previousPeriod, cohortMetrics, isStaleOrder, shopTimestamp } from '../lib/analytics.ts';
-import { createdDate, receiveProcurementBatch, inventorySnapshot, reconcileInventory, setProcurementStatus, setReturnReceived } from '../lib/model.ts';
+import { createdDate, receiveProcurementBatch, inventorySnapshot, reconcileInventory, setProcurementStatus, setReturnReceived, transitionOrderStatus } from '../lib/model.ts';
 import { normalizeShop, prepareShopUpdate, shopSchema } from '../lib/shop-validation.ts';
 const seed = JSON.parse(readFileSync(new URL('../db/seed.json', import.meta.url)));
 const product = { id:'item', product:'Áo thử nghiệm', color:'Đỏ', size:'M', quantity:1, price:300000, cost:100000 };
@@ -55,6 +55,15 @@ check('Server captures event dates without inventing legacy events or mutating n
  const before=normalizeShop({...base,orders:[newOrder]});
  let result=prepareShopUpdate(before,{...before,orders:[{...before.orders[0],status:'Giao thành công'}]},'2026-10-05');assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].delivered_at,'2026-10-05');assert.equal(result.data.orders[0].shipped_at,'2026-10-05');
  const legacy=normalizeShop({...base,orders:[{...order,delivered_at:undefined,shipped_at:undefined}]});result=prepareShopUpdate(legacy,{...legacy,orders:[{...legacy.orders[0],note:'Bổ sung ghi chú'}]},'2026-10-05');assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].delivered_at,undefined);assert.equal(result.data.orders[0].shipped_at,undefined);
+});
+check('Browser-local status changes stamp event dates so same-day revenue and profit update immediately',()=>{
+ const pending={...newOrder,date:'2026-10-01',created_at:'2026-10-01T10:00:00+07:00'};
+ const delivered=transitionOrderStatus(pending,'Giao thành công','2026-10-17');
+ assert.equal(delivered.delivered_at,'2026-10-17');assert.equal(delivered.shipped_at,'2026-10-17');
+ const metric=financialMetrics({...base,expenses:[],orders:[delivered]},'2026-10-17','2026-10-17');
+ assert.equal(metric.revenue,300000);assert.equal(metric.profit,188000);
+ const returned=transitionOrderStatus(delivered,'Hoàn','2026-10-18');assert.equal(returned.returned_at,'2026-10-18');
+ const restored=transitionOrderStatus(returned,'Giao thành công','2026-10-19');assert.equal(restored.returned_at,undefined);
 });
 check('Server preserves supplied creation time and never invents a missing hour',()=>{
  const previous=normalizeShop({...base,orders:[]});
