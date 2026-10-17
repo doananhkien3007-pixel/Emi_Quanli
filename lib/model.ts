@@ -15,16 +15,6 @@ export const shortMoney = (n:number) => Math.abs(n)>=1e6 ? (n/1e6).toLocaleStrin
 const businessDateFormatter=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'});
 export const eventDate = (value?:string) => {if(!value)return '';if(/T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value)&&!Number.isNaN(Date.parse(value)))return businessDateFormatter.format(new Date(value));return value.slice(0,10);};
 export const createdDate = (order:Order) => eventDate(order.created_at||order.date);
-/** Apply the same event-date rules before either browser-local or server persistence. */
-export function transitionOrderStatus(order:Order,status:string,day:string,previousStatus=order.status):Order{
- const next={...order,status};
- if(previousStatus==='Hoàn'&&status!=='Hoàn')next.returned_at=undefined;
- if(previousStatus===status)return next;
- if(status==='Đã gửi'||['Mới','Đã tạo đơn'].includes(previousStatus)&&['Giao thành công','Hoàn'].includes(status))next.shipped_at||=day;
- if(status==='Giao thành công')next.delivered_at||=day;
- if(status==='Hoàn')next.returned_at||=day;
- return next;
-}
 const cleanVariant=(value?:string)=>String(value||'').trim().toLocaleLowerCase('vi');
 export const variantKey=(item:Pick<Item,'product'|'color'|'size'>)=>[cleanVariant(item.product),cleanVariant(item.color),cleanVariant(item.size)].join('\u001f');
 export const inventoryState=(shop:Shop):InventoryState=>({returnReceipts:shop.inventory?.returnReceipts||[],procurementTaken:shop.inventory?.procurementTaken||[],allocations:shop.inventory?.allocations||[],stocktake:shop.inventory?.stocktake});
