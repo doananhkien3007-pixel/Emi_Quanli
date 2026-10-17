@@ -18,7 +18,7 @@ Tổng quan chỉ hiển thị hoạt động hôm nay: doanh số đơn chốt 
 
 Trong Kho hàng, kiểm tra số sản phẩm/SKU/đơn còn thiếu rồi tick **Đã nhập cả đợt** một lần. Tồn đúng sản phẩm + màu + size được dùng trước; hàng xưởng chỉ nhập phần thiếu và gắn trực tiếp cho đơn. Chuyển Hoàn tự cộng tồn một lần; đổi khỏi Hoàn thu hồi phần đã cộng. Hủy đơn giải phóng hàng tồn đã giữ và chuyển hàng đã nhập xưởng thành tồn khả dụng. Đơn gửi rồi không được đưa lại vào đợt cần nhập. Nếu nguồn tồn đã được dùng cho đơn khác đang gửi/đã giao, cần xử lý đơn đó trước khi rollback nguồn để tránh mất lịch sử xuất hàng.
 
-Trong Cài đặt, khoản vận chuyển về kho chưa có ngày được tính ở Tất cả. Có thể gán ngày để chuyển nguyên khoản sang sổ chi phí. Thay đổi phí mặc định không đổi phí của bản ghi cũ.
+Trong Cài đặt, khoản vận chuyển về kho chưa có ngày được tính ở Tất cả. Thay đổi phí mặc định không đổi phí của bản ghi cũ.
 
 ## Dữ liệu
 

@@ -68,14 +68,21 @@ check('Unreceived canceled orders create no stock; edit/delete of unpurchased re
  s=save(s,{...s,orders:s.orders.map(o=>o.id==='A'?{...o,items:[item('a',1)]}:o)});assert.equal(inventorySnapshot(s).totalStock,2);
  s=save(s,{...s,orders:s.orders.filter(o=>o.id!=='A')});assert.equal(inventorySnapshot(s).totalStock,3);
 });
-check('Server protects real goods from forged receipts, lost history and edits/deletes',()=>{
+check('Server protects real goods while allowing corrections to factory-only order lines',()=>{
  let s=shop([order('A',[item('a',2)])]);const request=receiveProcurementBatch(s,day);request.inventory.procurementTaken[0].quantity=3;
  assert.ok(prepareShopUpdate(s,request,day).error);s=receive(s);
  assert.ok(prepareShopUpdate(s,{...s,orders:[]},day).error);
- assert.ok(prepareShopUpdate(s,{...s,orders:[{...s.orders[0],items:[item('a',1)]}]},day).error);
- assert.equal(save(s,{...s,inventory:undefined}).inventory.procurementTaken[0].quantity,2);
+ s=save(s,{...s,orders:[{...s.orders[0],items:[item('a',1,'Xanh','L')]}]});
+ assert.equal(s.inventory.procurementTaken.length,1);assert.equal(s.inventory.procurementTaken[0].quantity,1);assert.equal(s.inventory.procurementTaken[0].variant,variantKey(item('a',1,'Xanh','L')));
+ assert.equal(save(s,{...s,inventory:undefined}).inventory.procurementTaken[0].quantity,1);
  const forged={...s,inventory:{...s.inventory,allocations:[{orderId:'A',itemId:'a',variant:variantKey(item('a')),quantity:99}]}};
  assert.equal(save(s,forged).inventory.allocations.length,0);
+});
+check('Deleting an accidentally added factory-only line also removes its procurement history',()=>{
+ let s=receive(shop([order('A',[item('a'),item('extra',1,'Xanh')])]));s=status(s,'A','Giao thành công');
+ assert.equal(s.inventory.procurementTaken.length,2);
+ s=save(s,{...s,orders:s.orders.map(o=>o.id==='A'?{...o,items:[o.items[0]]}:o)});
+ assert.equal(s.orders[0].items.length,1);assert.deepEqual(s.inventory.procurementTaken.map(record=>record.itemId),['a']);
 });
 check('Rollback cannot erase stock that has already physically left on another order',()=>{
  let s=shop([order('R',[item('r')],'Hoàn'),order('A',[item('a')])]);s=status(s,'A','Đã gửi');

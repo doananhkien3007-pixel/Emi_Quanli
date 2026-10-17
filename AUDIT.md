@@ -8,7 +8,7 @@
 | Báo cáo cũ lấy theo ngày chốt, trừ cả vốn đơn chưa giao | Hiệu quả bán hàng quy kết kết quả hiện tại về ngày chốt; vốn chỉ tính đơn thành công |
 | Hoàn sau giao có thể làm mất doanh thu lịch sử | Cohort loại doanh thu/vốn của đơn hoàn; giữ phí vận chuyển và phí hoàn của nhóm ngày chốt |
 | Excel không có ngày giao/hoàn/gửi | Không backfill ngày giả. Tổng quan không đếm sự kiện thiếu ngày; cohort vẫn quy kết trạng thái hiện tại về ngày chốt |
-| Phí về kho chưa ngày bị bỏ sót ở bộ lọc | Tính trong Tất cả; cảnh báo ở kỳ khác; có thao tác gán ngày và chuyển sang sổ chi phí trong Cài đặt |
+| Phí về kho chưa ngày bị bỏ sót ở bộ lọc | Tính trong Tất cả và cảnh báo ở các kỳ khác |
 | ROAS dùng giá trị đơn chốt, không có attribution | Hiển thị Doanh thu / chi Ads, nói rõ là tỷ số vận hành |
 | Cảnh báo mở danh sách với bộ lọc ngày hiện tại | Hàng đợi dùng tất cả thời gian; filter hoàn chỉ lấy đơn chưa nhận hàng |
 | Không tìm/copy mã vận đơn | Search bao gồm SPX, màu, size; copy tại bảng và drawer |
