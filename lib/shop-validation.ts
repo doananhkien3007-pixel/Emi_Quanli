@@ -25,13 +25,22 @@ export function prepareShopUpdate(previous: Shop, incoming: Shop, day: string): 
  if(productNames.some(name=>!name)||new Set(productNames).size!==productNames.length)return {error:'Tên sản phẩm phải có nội dung và không được trùng.'};
  const history=inventoryState(previous);
  const signature = (order: Shop['orders'][number]) => JSON.stringify(order.items.map(item => [item.id, variantKey(item), item.quantity]).sort((a,b)=>String(a[0]).localeCompare(String(b[0]))));
- const protectedOrders=new Set([...history.returnReceipts,...history.allocations.filter(record=>{const order=oldOrders.get(record.orderId);return order&&!['Mới','Đã tạo đơn'].includes(order.status);})].map(record=>record.orderId));
+ const returnedOrders=new Set(history.returnReceipts.map(record=>record.orderId));
  const procurementOrders=new Set(history.procurementTaken.map(record=>record.orderId));
  const allocatedOrders=new Set(history.allocations.map(record=>record.orderId));
  const correctedProcurementOrders=new Set<string>();
+ const correctedInventoryOrders=new Set<string>();
  for(const [id,old] of oldOrders){const next=data.orders.find(order=>order.id===id);if(next&&signature(old)===signature(next))continue;
-  if(protectedOrders.has(id)||procurementOrders.has(id)&&(!next||old.status==='Hủy'||next.status==='Hủy'||allocatedOrders.has(id)))return {error:`Đơn ${id} đã dùng hàng tồn hoặc tạo nguồn hàng thực tế. Không thể sửa sản phẩm/màu/size/số lượng.`};
-  if(procurementOrders.has(id))correctedProcurementOrders.add(id);
+  const hasProcurement=procurementOrders.has(id),hasAllocation=allocatedOrders.has(id);
+  const hasDispatchedAllocation=hasAllocation&&!['Mới','Đã tạo đơn'].includes(old.status);
+  // A returned order is itself a stock source, and a canceled procured order has
+  // already turned its factory goods into stock. Editing either would rewrite
+  // stock that may already have been used elsewhere. A dispatched consumer is
+  // different: editing its lines is a correction, so reconcileInventory can
+  // release or resize only that order's allocation/procurement records.
+  if(returnedOrders.has(id)||(hasProcurement||hasDispatchedAllocation)&&(!next||old.status==='Hủy'||next.status==='Hủy'))return {error:`Đơn ${id} đã dùng hàng tồn hoặc tạo nguồn hàng thực tế. Không thể sửa sản phẩm/màu/size/số lượng.`};
+  if(next&&(hasProcurement||hasAllocation))correctedInventoryOrders.add(id);
+  if(next&&hasProcurement)correctedProcurementOrders.add(id);
  }
  for (const order of data.orders) {
   const old = oldOrders.get(order.id);
@@ -77,8 +86,8 @@ export function prepareShopUpdate(previous: Shop, incoming: Shop, day: string): 
  const identity=(record:{orderId:string;itemId:string})=>`${record.orderId}\u001f${record.itemId}`;
  if(new Set(requested.map(identity)).size!==requested.length)return {error:'Dòng nhập hàng bị trùng.'};
  const previousTaken=new Map(history.procurementTaken.filter(record=>!correctedProcurementOrders.has(record.orderId)).map(record=>[identity(record),record]));
- for(const orderId of correctedProcurementOrders){const order=data.orders.find(value=>value.id===orderId)!,oldRecords=history.procurementTaken.filter(record=>record.orderId===orderId),oldByItem=new Map(oldRecords.map(record=>[record.itemId,record])),fallbackTakenAt=oldRecords[0]?.takenAt||order.shipped_at||day;
-  order.items.forEach((item,index)=>{const itemId=item.id||`${order.id}-${index+1}`,old=oldByItem.get(itemId);previousTaken.set(identity({orderId,itemId}),{orderId,itemId,variant:variantKey(item),quantity:item.quantity,takenAt:old?.takenAt||fallbackTakenAt});});
+ for(const orderId of correctedProcurementOrders){const order=data.orders.find(value=>value.id===orderId)!,oldRecords=history.procurementTaken.filter(record=>record.orderId===orderId),oldByItem=new Map(oldRecords.map(record=>[record.itemId,record]));
+  order.items.forEach((item,index)=>{const itemId=item.id||`${order.id}-${index+1}`,old=oldByItem.get(itemId);if(!old)return;previousTaken.set(identity({orderId,itemId}),{orderId,itemId,variant:variantKey(item),quantity:Math.min(old.quantity,item.quantity),takenAt:old.takenAt});});
  }
  data.inventory={...history,procurementTaken:[...previousTaken.values()]};
  const shortages=new Map(inventorySnapshot(data).requirements.map(row=>[identity(row),row]));
@@ -93,6 +102,6 @@ export function prepareShopUpdate(previous: Shop, incoming: Shop, day: string): 
  data.inventory.procurementTaken=[...previousTaken.values()];
  const normalized=normalizeShop(data);
  const allocations=new Map(inventoryState(normalized).allocations.map(record=>[identity(record),record.quantity]));
- for(const record of history.allocations){const next=normalized.orders.find(order=>order.id===record.orderId);if(next&&['Đã gửi','Giao thành công','Hoàn'].includes(next.status)&&(allocations.get(identity(record))||0)<record.quantity)return {error:`Hàng tồn đã được dùng cho đơn ${next.id} đang gửi/đã giao. Không thể thu hồi nguồn hàng này trước khi xử lý đơn đã sử dụng.`};}
+ for(const record of history.allocations){const next=normalized.orders.find(order=>order.id===record.orderId);if(next&&!correctedInventoryOrders.has(record.orderId)&&['Đã gửi','Giao thành công','Hoàn'].includes(next.status)&&(allocations.get(identity(record))||0)<record.quantity)return {error:`Hàng tồn đã được dùng cho đơn ${next.id} đang gửi/đã giao. Không thể thu hồi nguồn hàng này trước khi xử lý đơn đã sử dụng.`};}
  return { data: normalized };
 }

@@ -84,6 +84,13 @@ check('Deleting an accidentally added factory-only line also removes its procure
  s=save(s,{...s,orders:s.orders.map(o=>o.id==='A'?{...o,items:[o.items[0]]}:o)});
  assert.equal(s.orders[0].items.length,1);assert.deepEqual(s.inventory.procurementTaken.map(record=>record.itemId),['a']);
 });
+check('Deleting a wrong line from a dispatched stock order releases only that allocation',()=>{
+ let s=shop([order('R',[item('r',2)],'Hoàn'),order('A',[item('a'),item('extra')])]);s=status(s,'A','Đã gửi');
+ assert.equal(s.inventory.allocations.length,2);assert.equal(inventorySnapshot(s).totalStock,0);
+ s=save(s,{...s,orders:s.orders.map(o=>o.id==='A'?{...o,items:[o.items[0]]}:o)});
+ assert.equal(s.orders[0].items.length,1);assert.deepEqual(s.inventory.allocations.map(record=>record.itemId),['a']);
+ assert.equal(inventorySnapshot(s).totalStock,1);
+});
 check('Rollback cannot erase stock that has already physically left on another order',()=>{
  let s=shop([order('R',[item('r')],'Hoàn'),order('A',[item('a')])]);s=status(s,'A','Đã gửi');
  assert.ok(prepareShopUpdate(s,{...s,orders:s.orders.map(o=>o.id==='R'?{...o,status:'Giao thành công'}:o)},day).error);
