@@ -113,16 +113,16 @@ export function TodayOverview({ data, spxCount, neededCount, staleCount, onSpx, 
         <div className="today-chart" onPointerLeave={() => setActiveHour(null)}>
           <div className="hourly-plot"><svg viewBox="0 0 710 190" role="group" aria-label="Doanh số đơn chốt theo giờ Việt Nam">
             <defs>
-              <linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10a77e" stopOpacity=".3" /><stop offset="100%" stopColor="#10a77e" stopOpacity="0" /></linearGradient>
+              <linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10a77e" stopOpacity=".22" /><stop offset="100%" stopColor="#10a77e" stopOpacity="0" /></linearGradient>
               <filter id={glow} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.5" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
             </defs>
-            {[0, 1, 2].map(index => <g key={index}><line x1="42" x2="680" y1={y(max * index / 2)} y2={y(max * index / 2)} stroke="rgba(255,255,255,.13)" strokeWidth=".8" strokeDasharray={index ? '3 6' : undefined} /><text x="34" y={y(max * index / 2) + 3} textAnchor="end" fontSize="9" fill="rgba(255,255,255,.52)">{shortMoney(max * index / 2)}</text></g>)}
+            {[0, 1, 2].map(index => <g key={index}><line x1="42" x2="680" y1={y(max * index / 2)} y2={y(max * index / 2)} stroke="#dfe9e6" strokeWidth=".8" strokeDasharray={index ? '3 6' : undefined} /><text x="34" y={y(max * index / 2) + 3} textAnchor="end" fontSize="9" fill="#84958f">{shortMoney(max * index / 2)}</text></g>)}
             <polygon className="hourly-area" points={`42,156 ${points} 680,156`} fill={`url(#${gradient})`} />
-            <polyline className="hourly-line" points={points} fill="none" stroke="#6ee7c1" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-            {selectedHour && <line x1={x(selectedHour.hour)} x2={x(selectedHour.hour)} y1="26" y2="156" stroke="rgba(255,255,255,.44)" strokeWidth=".8" strokeDasharray="3 4" />}
+            <polyline className="hourly-line" points={points} fill="none" stroke="#0c9b73" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+            {selectedHour && <line x1={x(selectedHour.hour)} x2={x(selectedHour.hour)} y1="26" y2="156" stroke="#8eb9ad" strokeWidth=".8" strokeDasharray="3 4" />}
             {data.hours.map(hour => <g key={hour.hour}>
-              {[0, 6, 12, 18, 23].includes(hour.hour) && <text x={x(hour.hour)} y="180" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,.52)">{String(hour.hour).padStart(2, '0')}:00</text>}
-              {(hour.count > 0 || activeHour === hour.hour) && <circle cx={x(hour.hour)} cy={y(hour.value)} r={activeHour === hour.hour ? 5 : 3.2} fill="#143c3a" stroke="#a7f3d0" strokeWidth="2" filter={activeHour === hour.hour ? `url(#${glow})` : undefined} />}
+              {[0, 6, 12, 18, 23].includes(hour.hour) && <text x={x(hour.hour)} y="180" textAnchor="middle" fontSize="9" fill="#84958f">{String(hour.hour).padStart(2, '0')}:00</text>}
+              {(hour.count > 0 || activeHour === hour.hour) && <circle cx={x(hour.hour)} cy={y(hour.value)} r={activeHour === hour.hour ? 5 : 3.2} fill="#ffffff" stroke="#0c9b73" strokeWidth="2" filter={activeHour === hour.hour ? `url(#${glow})` : undefined} />}
               <rect className="hourly-hit" x={x(hour.hour) - 13} y="20" width="26" height="140" fill="transparent" tabIndex={0} role="button" aria-label={`${hour.hour} giờ: ${hour.count} đơn, ${money(hour.value)}`} onPointerEnter={() => setActiveHour(hour.hour)} onFocus={() => setActiveHour(hour.hour)} onBlur={() => setActiveHour(null)} onClick={() => setActiveHour(hour.hour)} onKeyDown={event => { if (event.key === 'Escape') setActiveHour(null); if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setActiveHour(hour.hour); } }} />
             </g>)}
           </svg>
