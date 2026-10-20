@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser } from '../../chatgpt-auth';
 import { normalizeShop, shopSchema, prepareShopUpdate } from '../../../lib/shop-validation';
-import { shopToday } from '../../../lib/analytics';
+import { shopTimestamp } from '../../../lib/analytics';
 import { type Shop } from '../../../lib/model';
 export const dynamic = 'force-dynamic';
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
@@ -74,14 +74,14 @@ export async function PUT(request:Request){
  let input;try{input=shopSchema.safeParse(await request.json());}catch{return json({error:'Dữ liệu không hợp lệ.'},400);}
  if(!input.success)return json({error:'Kiểm tra lại ngày, số tiền và các trường bắt buộc.'},400);
  const {data,revision}=input.data;
- const businessDay=shopToday();
+ const businessTimestamp=shopTimestamp();
  const config=supabaseConfig();
  if(config){
   try{
    const current=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});
    if(Number(current.revision)!==revision)return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
    const times=await getOrderCreationTimes(config.slug);
-   const update=prepareShopUpdate(normalizeShop(withOrderCreationTimes(unpackLegacyCreationTimes(current.data),times)),data as Shop,businessDay);
+   const update=prepareShopUpdate(normalizeShop(withOrderCreationTimes(unpackLegacyCreationTimes(current.data),times)),data as Shop,businessTimestamp);
    if(!update.data)return json({error:update.error},400);
    const saved=await saveSupabaseShop(config.slug,revision,update.data);
    return json({data:normalizeShop(unpackLegacyCreationTimes(saved.data)),revision:Number(saved.revision)});
@@ -96,7 +96,7 @@ export async function PUT(request:Request){
  const current=await env.DB.prepare('SELECT data FROM shops WHERE owner = ?').bind(user.userId).first<{data:string}>();
  const previous=current?normalizeShop(JSON.parse(current.data) as Shop):null;
  if(!previous)return json({error:'Không tìm thấy cửa hàng. Tải lại trước khi lưu.'},409);
- const update=prepareShopUpdate(previous,data as Shop,businessDay);
+ const update=prepareShopUpdate(previous,data as Shop,businessTimestamp);
  if(!update.data)return json({error:update.error},400);
  const normalized=update.data;
  const result=await env.DB.prepare('UPDATE shops SET data = ?, revision = revision + 1 WHERE owner = ? AND revision = ?').bind(JSON.stringify(normalized),user.userId,revision).run();
