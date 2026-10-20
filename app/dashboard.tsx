@@ -137,7 +137,7 @@ export default function Dashboard({localStorageMode=false}:{localStorageMode?:bo
  </Modal>}
  {modal&&<Modal
   kind={modal}
-  title={modal==='order'?(editingOrder?'Chi tiết đơn #'+editingOrder.id:repeatOrderSource?'Lên đơn lại · '+repeatOrderSource.customer:'Tạo đơn hàng nhanh'):modal==='spx'?`Nhập mã SPX · #${editingOrder?.id||''}`:modal==='expense'?(editingExpense?'Chỉnh sửa chi phí':'Thêm khoản chi'):'Hướng dẫn sử dụng'}
+  title={modal==='order'?(editingOrder?'Chi tiết đơn #'+editingOrder.id:repeatOrderSource?'Tạo đơn lại · '+repeatOrderSource.customer:'Tạo đơn hàng nhanh'):modal==='spx'?`Nhập mã SPX · #${editingOrder?.id||''}`:modal==='expense'?(editingExpense?'Chỉnh sửa chi phí':'Thêm khoản chi'):'Hướng dẫn sử dụng'}
   close={()=>{if(!saving){setModal(null);setRepeatOrderSource(null);setError('');}}}
  >
   {error&&<div className="error-banner" role="alert">{error}</div>}
@@ -146,7 +146,7 @@ export default function Dashboard({localStorageMode=false}:{localStorageMode?:bo
 	   template={repeatOrderSource}
    shop={shop}
    saving={saving}
-	   onSave={async order=>{const next={...shop,orders:editingOrder?shop.orders.map(current=>current.id===order.id?order:current):[...shop.orders,order]};if(await persist(next)){if(repeatOrderSource){setDetailOrder(order);toast(`Đã lên đơn mới #${order.id} cho ${order.customer}`);}setRepeatOrderSource(null);setModal(null);}}}
+	   onSave={async order=>{const next={...shop,orders:editingOrder?shop.orders.map(current=>current.id===order.id?order:current):[...shop.orders,order]};if(await persist(next)){if(repeatOrderSource){setDetailOrder(order);toast(`Đã tạo đơn mới #${order.id} cho ${order.customer}`);}setRepeatOrderSource(null);setModal(null);}}}
    onDelete={async()=>{if(editingOrder&&await persist({...shop,orders:shop.orders.filter(order=>order.id!==editingOrder.id)})){setDetailOrder(null);setModal(null);}}}
   />}
   {modal==='spx'&&shop&&editingOrder&&<SpxForm saving={saving} onSave={async spxCode=>{const next={...shop,orders:shop.orders.map(order=>order.id===editingOrder.id?{...order,status:'Đã tạo đơn',spxCode}:order)};if(await persist(next))setModal(null);}}/>}
@@ -215,7 +215,7 @@ function OrderDetailDrawer({order,customerOrderCount,shippingFallback,returnRece
    <section className="drawer-section drawer-finance"><div className="drawer-section-title"><CircleDollarSign size={16}/><h3>Thanh toán & vận chuyển</h3></div><dl><div><dt>Giá trị đơn</dt><dd>{money(order.price)}</dd></div><div><dt>Giá vốn</dt><dd>{money(order.cost)}</dd></div><div><dt>Phí ship</dt><dd>{money(order.shippingFee??shippingFallback)}</dd></div><div><dt>Mã SPX</dt><dd className={order.spxCode?'drawer-spx':'spx-empty'}>{order.spxCode?<button className="spx-code" onClick={()=>void onCopy(order.spxCode!)}>{order.spxCode}<Copy size={12}/></button>:'Chưa có'}</dd></div></dl></section>
    {order.note&&<section className="drawer-section"><div className="drawer-section-title"><CircleHelp size={16}/><h3>Ghi chú</h3></div><p className="drawer-note">{order.note}</p></section>}
   </div>
-	  <div className="drawer-actions">{order.status==='Hoàn'&&returnReceived&&<span className="return-received"><Check size={14}/>Đã tự động nhập lại kho</span>}<button className="button reorder-button" disabled={saving} onClick={repeat}><RefreshCw size={14}/>Lên đơn lại</button><button className="button" onClick={close}>Đóng</button><button className="button primary" onClick={edit}>Chỉnh sửa đơn</button></div>
+	  <div className="drawer-actions">{order.status==='Hoàn'&&returnReceived&&<span className="return-received"><Check size={14}/>Đã tự động nhập lại kho</span>}<button className="button reorder-button" disabled={saving} onClick={repeat}><RefreshCw size={14}/>Tạo đơn lại</button><button className="button" onClick={close}>Đóng</button><button className="button primary" onClick={edit}>Chỉnh sửa đơn</button></div>
  </aside>;
 }
 function Modal({kind,title,close,children}:{kind:'order'|'spx'|'expense'|'help'|'performance';title:string;close:()=>void;children:React.ReactNode}){
