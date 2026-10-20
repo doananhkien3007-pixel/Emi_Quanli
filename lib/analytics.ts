@@ -99,28 +99,19 @@ export const needsSpx=(order:Order)=>['Mới','Đã tạo đơn'].includes(order
 export function todayOperations(shop:Shop,date:string){
   const events=activityMetrics(shop,date,date);
   const ads=shop.expenses.filter(expense=>expense.date===date&&expense.category==='Quảng cáo').reduce((sum,expense)=>sum+expense.amount,0);
+  const hours=Array.from({length:24},(_,hour)=>({hour,value:0,count:0}));
+  let unknownValue=0,unknownCount=0;
   const formatter=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',hourCycle:'h23'});
-  const hourlySeries=(orders:Order[],timestamp:(order:Order)=>string|undefined)=>{
-    const hours=Array.from({length:24},(_,hour)=>({hour,value:0,count:0}));
-    let unknownValue=0,unknownCount=0;
-    for(const order of orders){
-      const value=timestamp(order);
-      const hour=value&&/T\d{2}:/.test(value)?(/[Zz]|[+-]\d{2}:\d{2}$/.test(value)?Number(formatter.format(new Date(value))):Number(value.slice(11,13))):null;
-      if(hour===null||!Number.isInteger(hour)||hour<0||hour>23){unknownValue+=order.price;unknownCount++;continue;}
-      hours[hour].value+=order.price;hours[hour].count++;
-    }
-    return {hours,unknownValue,unknownCount};
-  };
-  const hourly={
-    created:hourlySeries(events.created,order=>order.created_at),
-    delivered:hourlySeries(events.delivered,order=>order.delivered_at),
-    returned:hourlySeries(events.returned,order=>order.returned_at),
-  };
-  const {hours,unknownValue,unknownCount}=hourly.created;
+  for(const order of events.created){
+    const value=order.created_at;
+    const hour=value&&/T\d{2}:/.test(value)?(/[Zz]|[+-]\d{2}:\d{2}$/.test(value)?Number(formatter.format(new Date(value))):Number(value.slice(11,13))):null;
+    if(hour===null||!Number.isInteger(hour)||hour<0||hour>23){unknownValue+=order.price;unknownCount++;continue;}
+    hours[hour].value+=order.price;hours[hour].count++;
+  }
   const revenue=events.created.reduce((sum,order)=>sum+order.price,0);
   const productQuantity=events.created.reduce((sum,order)=>sum+order.items.reduce((quantity,item)=>quantity+item.quantity,0),0);
   return {...events,ads,cpa:events.created.length?ads/events.created.length:null,
-    revenue,closedRoas:ads>0?revenue/ads:null,productQuantity,hourly,hours,unknownValue,unknownCount};
+    revenue,closedRoas:ads>0?revenue/ads:null,productQuantity,hours,unknownValue,unknownCount};
 }
 
 /** Operational event counts never substitute the close date for an unknown delivery date. */

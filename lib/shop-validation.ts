@@ -6,7 +6,7 @@ const dateTime=z.string().regex(/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.
 const line=z.string().max(2000);
 const itemSchema=z.object({id:line.min(1).optional(),product:line.min(1),color:line.optional(),size:line,quantity:z.number().int().min(1).max(10000),price:amount,cost:amount});
 const inventorySchema=z.object({returnReceipts:z.array(z.object({orderId:line.min(1),receivedAt:dateTime})).max(20000),procurementTaken:z.array(z.object({orderId:line.min(1),itemId:line.min(1),variant:line.min(1),quantity:z.number().int().min(1).max(10000),takenAt:dateTime})).max(20000),allocations:z.array(z.object({orderId:line.min(1),itemId:line.min(1),variant:line.min(1),quantity:z.number().int().min(1).max(10000)})).max(20000),stocktake:z.object({countedOn:date,absorbedReturnOrderIds:z.array(line.min(1)).max(20000),items:z.array(z.object({product:line.min(1),color:line,size:line,quantity:z.number().int().min(1).max(10000),unitCost:amount})).max(500)}).optional()});
-export const shopSchema=z.object({revision:z.number().int().min(1),data:z.object({orders:z.array(z.object({id:line.min(1),date,created_at:dateTime.optional(),updated_at:dateTime.optional(),shipped_at:dateTime.optional(),returnShippingFee:amount.optional(),delivered_at:dateTime.optional(),returned_at:dateTime.optional(),spxCode:line.optional(),shippingFee:amount.optional(),customer:line.min(1),phone:line,address:line,product:line.min(1),size:line,quantity:z.number().int().min(1).max(10000),price:amount,cost:amount,status:z.enum(statuses),note:line,sourceRow:z.number().optional(),items:z.array(itemSchema).min(1).max(100)})).max(20000),expenses:z.array(z.object({id:line.min(1),date,category:line.min(1),name:line.min(1),amount,note:line,adFeeRate:z.number().min(0).max(200).optional()})).max(20000),products:z.array(z.object({name:line,price:amount,cost:amount})),settings:z.object({shipping:amount,returnShipping:amount,platformRate:z.number().min(0).max(100),cardRate:z.number().min(0).max(100),returnRateThreshold:z.number().min(0).max(100).optional()}),undatedInbound:amount,source:line,inventory:inventorySchema.optional()})});
+export const shopSchema=z.object({revision:z.number().int().min(1),data:z.object({orders:z.array(z.object({id:line.min(1),date,created_at:dateTime.optional(),updated_at:dateTime.optional(),shipped_at:date.optional(),returnShippingFee:amount.optional(),delivered_at:date.optional(),returned_at:date.optional(),spxCode:line.optional(),shippingFee:amount.optional(),customer:line.min(1),phone:line,address:line,product:line.min(1),size:line,quantity:z.number().int().min(1).max(10000),price:amount,cost:amount,status:z.enum(statuses),note:line,sourceRow:z.number().optional(),items:z.array(itemSchema).min(1).max(100)})).max(20000),expenses:z.array(z.object({id:line.min(1),date,category:line.min(1),name:line.min(1),amount,note:line,adFeeRate:z.number().min(0).max(200).optional()})).max(20000),products:z.array(z.object({name:line,price:amount,cost:amount})),settings:z.object({shipping:amount,returnShipping:amount,platformRate:z.number().min(0).max(100),cardRate:z.number().min(0).max(100),returnRateThreshold:z.number().min(0).max(100).optional()}),undatedInbound:amount,source:line,inventory:inventorySchema.optional()})});
 export function normalizeShop(input:Shop):Shop{
  const seenItemIds=new Set<string>();
  const orders=input.orders.map(order=>({...order,created_at:order.created_at||order.date,status:order.status==='Đang giao'?'Đã gửi':order.status,items:order.items.map((item,index)=>{let id=item.id?.trim()||`${order.id}-${index+1}`;if(seenItemIds.has(id))id=`${order.id}-${index+1}`;seenItemIds.add(id);return {...item,id,color:item.color?.trim()||''};})}));
@@ -16,9 +16,8 @@ export function normalizeShop(input:Shop):Shop{
 }
 
 /** Validate stock history and capture defaults before settings can change historical costs. */
-export function prepareShopUpdate(previous: Shop, incoming: Shop, now: string): { data: Shop; error?: never } | { error: string; data?: never } {
+export function prepareShopUpdate(previous: Shop, incoming: Shop, day: string): { data: Shop; error?: never } | { error: string; data?: never } {
  const data = structuredClone(incoming);
- const day=now.slice(0,10);
  const oldOrders = new Map(previous.orders.map(order => [order.id, order]));
  const oldExpenses = new Map(previous.expenses.map(expense => [expense.id, expense]));
  if (new Set(data.orders.map(order => order.id)).size !== data.orders.length || new Set(data.expenses.map(expense => expense.id)).size !== data.expenses.length) return { error: 'Mã bản ghi bị trùng.' };
@@ -56,15 +55,14 @@ export function prepareShopUpdate(previous: Shop, incoming: Shop, now: string): 
   if(old?.status==='Hoàn'&&order.status!=='Hoàn')order.returned_at=undefined;
   if (!old || old.status !== order.status) {
    // Do not invent missing shipping dates when a legacy in-transit order completes.
-   if (order.status === 'Đã gửi' || (!old || ['Mới','Đã tạo đơn'].includes(old.status)) && ['Giao thành công','Hoàn'].includes(order.status)) order.shipped_at ||= now;
-   if (order.status === 'Giao thành công') order.delivered_at ||= now;
-   if (order.status === 'Hoàn') order.returned_at ||= now;
+   if (order.status === 'Đã gửi' || (!old || ['Mới','Đã tạo đơn'].includes(old.status)) && ['Giao thành công','Hoàn'].includes(order.status)) order.shipped_at ||= day;
+   if (order.status === 'Giao thành công') order.delivered_at ||= day;
+   if (order.status === 'Hoàn') order.returned_at ||= day;
   }
   for (const event of [order.shipped_at, order.delivered_at, order.returned_at]) {
-   const eventDay=event?.slice(0,10);
-   if (eventDay && (eventDay < order.date || eventDay > day)) return { error: `Ngày giao nhận đơn ${order.id} phải từ ngày chốt đến hôm nay.` };
+   if (event && (event < order.date || event > day)) return { error: `Ngày giao nhận đơn ${order.id} phải từ ngày chốt đến hôm nay.` };
   }
-  if (order.shipped_at && [order.delivered_at,order.returned_at].some(event=>event && event.slice(0,10) < order.shipped_at!.slice(0,10))) return { error: `Ngày giao/hoàn đơn ${order.id} không thể trước ngày gửi.` };
+  if (order.shipped_at && [order.delivered_at,order.returned_at].some(event=>event && event < order.shipped_at!)) return { error: `Ngày giao/hoàn đơn ${order.id} không thể trước ngày gửi.` };
   order.price = order.items.reduce((sum,item)=>sum+item.price,0);
   order.cost = order.items.reduce((sum,item)=>sum+item.cost,0);
   order.quantity = order.items.reduce((sum,item)=>sum+item.quantity,0);
@@ -78,7 +76,7 @@ export function prepareShopUpdate(previous: Shop, incoming: Shop, now: string): 
    value.spxCode||'',value.shipped_at||'',value.delivered_at||'',value.returned_at||'',
    value.items.map(item=>[item.id,item.product,item.color||'',item.size,item.quantity,item.price,item.cost]),
   ]);
-  order.updated_at = !old || comparable(order) !== comparable(old) ? now : old.updated_at;
+  order.updated_at = !old || comparable(order) !== comparable(old) ? day : old.updated_at;
  }
  for (const expense of data.expenses) {
   if (expense.category === 'Quảng cáo') expense.adFeeRate = oldExpenses.get(expense.id)?.adFeeRate ?? previous.settings.platformRate + previous.settings.cardRate;
