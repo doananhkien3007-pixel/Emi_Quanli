@@ -109,7 +109,7 @@ check('Three orders closed on the 12th count as deliveries/returns on the 15th, 
 });
 check('Today uses Vietnam hours, actual outcome dates and closed-order CPA',()=>{
  const shop={...base,orders:[order,{...newOrder,id:'TODAY',created_at:'2026-10-02T18:30:00Z'}, {...newOrder,id:'UNDATED',created_at:'2026-10-03'}]};
- const day=todayOperations(shop,'2026-10-03');assert.equal(day.created.length,2);assert.equal(day.delivered.length,1);assert.equal(day.revenue,600000);assert.equal(day.cpa,25000);assert.equal(day.hours[1].value,300000);assert.equal(day.unknownValue,300000);
+ const day=todayOperations(shop,'2026-10-03');assert.equal(day.created.length,2);assert.equal(day.delivered.length,1);assert.equal(day.revenue,600000);assert.equal(day.cpa,25000);assert.equal(day.hours[1].value,300000);assert.equal(day.unknownValue,300000);assert.equal(day.hourly.created.hours[1].value,300000);assert.equal(day.hourly.delivered.unknownValue,300000);
  assert.equal(todayOperations(base,'2026-10-03').cpa,null);
  assert.equal(needsSpx(newOrder),true);assert.equal(needsSpx({...newOrder,spxCode:'SPX1'}),false);assert.equal(needsSpx(order),false);
 });

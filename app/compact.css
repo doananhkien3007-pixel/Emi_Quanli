@@ -132,6 +132,7 @@ main{padding:16px 22px 24px}
 .today-hero-summary>span{color:#6f827c;font-size:10px}
 .today-hero-summary>strong{display:block;margin:7px 0 12px;color:#173c34;font-size:clamp(27px,2.6vw,39px);font-weight:650;line-height:1.08;letter-spacing:-1.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .animated-metric{display:inline-block;font:inherit;color:inherit}
+.today-revenue-tabs{display:grid;gap:5px}.today-revenue-tabs button{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 8px;min-width:0;padding:7px 9px;border:1px solid #dfe8e6;border-radius:9px;background:#ffffffa8;color:#61766f;text-align:left;box-shadow:0 2px 8px #31584a07;transition:border-color .16s ease,background .16s ease,transform .16s ease,box-shadow .16s ease}.today-revenue-tabs button:hover{transform:translateX(2px);border-color:var(--series-color);box-shadow:0 5px 12px #31584a0d}.today-revenue-tabs button.is-active{border-color:var(--series-color);background:var(--series-soft);box-shadow:inset 3px 0 0 var(--series-color),0 5px 14px #31584a0b}.today-revenue-tabs button>span{display:flex;align-items:center;gap:7px;min-width:0;font-size:9px;font-weight:620}.today-revenue-tabs button i{width:15px;height:3px;flex:0 0 auto;border-radius:999px;background:var(--series-color)}.today-revenue-tabs button b{grid-column:2;grid-row:1/3;color:var(--series-color);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}.today-revenue-tabs button small{grid-column:1;margin-left:22px;color:#8b9a95;font-size:8px}.today-revenue-tabs button:focus-visible{outline:2px solid var(--series-color);outline-offset:2px}
 .today-hero-chips{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.today-hero-chips span{padding:5px 8px;border:1px solid #dce9e5;border-radius:7px;background:#ffffffb8;color:#647a73;font-size:9px;box-shadow:0 2px 8px #31584a08}.today-hero-chips b{color:#24483f;font-size:11px;font-weight:650}
 .today-hero-summary>p{display:flex;align-items:flex-start;gap:7px;margin-top:16px;max-width:270px;color:#71847d;font-size:9px;line-height:1.55}.today-hero-summary>p svg{margin-top:1px;color:#d69a2d}
 .today-hero .today-chart{align-self:end;min-width:0;padding:0 12px 11px 0}
@@ -142,7 +143,7 @@ main{padding:16px 22px 24px}
 .today-hero .hourly-readout{display:flex;align-items:center;justify-content:space-between;min-height:15px;padding:0 18px 0 43px;color:#8a9994;font-size:8px}.today-hero .hourly-readout span:nth-child(2){color:#74877f}
 .today-hero .hourly-unknown{display:block;margin:5px 18px 0 43px;color:#a8751e;font-size:8px;text-align:center}
 .today-hero .hourly-tooltip{top:7px;border-color:#dce8e4;background:#fffffff2;box-shadow:0 10px 30px #23483b18;backdrop-filter:blur(12px)}
-.today-hero .hourly-tooltip>span,.today-hero .hourly-tooltip>small{color:#70817b}.today-hero .hourly-tooltip>strong{color:#1d3d35}.today-hero .hourly-tooltip i{background:#10a77e}
+.today-hero .hourly-tooltip>span,.today-hero .hourly-tooltip>small{color:#70817b}.today-hero .hourly-tooltip>strong{color:#1d3d35}.today-hero .hourly-tooltip i{background:var(--series-color,#10a77e)}
 .today-status{min-width:0;overflow:hidden;border-color:#e2e8f1;background:linear-gradient(160deg,#fff 55%,#f8fbff)}
 .today-status .panel-title{align-items:center;min-height:66px;padding:17px 18px 8px}.today-status .panel-title h2{margin-top:4px;font-size:14px}.section-kicker{color:#8a98aa;font-size:7.5px;font-weight:750;letter-spacing:1.05px}
 .today-status-total{padding:4px 8px;border:1px solid #e2e8f0;border-radius:999px;background:#f8fafc;color:#65758b;font-size:9px;font-weight:650}
@@ -190,5 +191,5 @@ main{padding:16px 22px 24px}
  .today-ads{grid-template-columns:1fr}.today-ads .mini-today-stat{min-height:112px}.today-ads .mini-today-stat>div:first-child{grid-template-columns:30px minmax(0,1fr) auto}.today-ads .mini-today-stat>div:first-child>small,.today-ads .mini-today-stat .text-button{grid-column:auto;justify-self:auto}.today-ads .mini-today-stat>strong{font-size:23px}
 }
 @media(prefers-reduced-motion:reduce){
- .today-live i::after,.donut-orbit,.today-hero .hourly-line,.today-hero .hourly-area{animation:none}.today-hero .hourly-line{stroke-dashoffset:0}.today-hero .hourly-area{opacity:1}.today-overview .today-task-card,.today-ads .mini-today-stat,.today-status-list button,.metric-track i{transition:none}
+ .today-live i::after,.donut-orbit,.today-hero .hourly-line,.today-hero .hourly-area{animation:none}.today-hero .hourly-line{stroke-dashoffset:0}.today-hero .hourly-area{opacity:1}.today-overview .today-task-card,.today-ads .mini-today-stat,.today-status-list button,.today-revenue-tabs button,.metric-track i{transition:none}
 }
