@@ -60,7 +60,6 @@ export function TodayOverview({ data, spxCount, neededCount, staleCount, onSpx, 
 }) {
   const [activeHour, setActiveHour] = useState<number | null>(null);
   const [activeRevenueSeries, setActiveRevenueSeries] = useState<RevenueSeries>('created');
-  const [activeStatus, setActiveStatus] = useState<number | null>(null);
   const [tasksOpen, setTasksOpen] = useState(true);
   const gradient = useId().replaceAll(':', '');
   const glow = useId().replaceAll(':', '');
@@ -78,17 +77,8 @@ export function TodayOverview({ data, spxCount, neededCount, staleCount, onSpx, 
   const x = (hour: number) => 42 + hour / 23 * 638;
   const y = (value: number) => 156 - value / max * 126;
   const points = selectedSeries.hours.map(hour => `${x(hour.hour)},${y(hour.value)}`).join(' ');
-  const statuses = [
-    { key: 'created' as const, label: 'Đơn mới', shortLabel: 'đơn mới', orders: data.created, color: '#4d7fe8' },
-    { key: 'delivered' as const, label: 'Giao thành công', shortLabel: 'đã giao', orders: data.delivered, color: '#0c9b73' },
-    { key: 'returned' as const, label: 'Hoàn', shortLabel: 'đơn hoàn', orders: data.returned, color: '#e05e75' },
-  ];
-  const totalEvents = statuses.reduce((sum, status) => sum + status.orders.length, 0);
   const totalTasks = spxCount + neededCount + staleCount;
-  const circumference = 2 * Math.PI * 64;
   const selectedHour = activeHour === null ? null : selectedSeries.hours[activeHour];
-  const selectedStatus = activeStatus === null ? null : statuses[activeStatus];
-  const nonEmptyStatuses = statuses.filter(status => status.orders.length > 0).length;
   const lastActiveHour = [...selectedSeries.hours].reverse().find(hour => hour.count > 0)?.hour;
   const averageOrder = data.created.length ? data.revenue / data.created.length : 0;
   const adsShare = data.revenue > 0 ? data.ads / data.revenue * 100 : 0;
@@ -165,25 +155,6 @@ export function TodayOverview({ data, spxCount, neededCount, staleCount, onSpx, 
           <div className="hourly-readout"><span>00:00</span><span>Đang xem: {selectedRevenue.label} · chọn mục bên trái để đổi đường</span><span>23:00</span></div>
           {selectedSeries.unknownCount > 0 && <small className="hourly-unknown">{selectedSeries.unknownCount} đơn chưa có giờ · {money(selectedSeries.unknownValue)}</small>}
         </div>
-      </div>
-    </section>
-
-    <section className="panel today-status" aria-labelledby="today-status-title">
-      <div className="panel-title"><div><span className="section-kicker">DÒNG ĐƠN HÀNG</span><h2 id="today-status-title">Trạng thái hôm nay</h2></div><span className="today-status-total">{totalEvents} lượt</span></div>
-      <div className="today-status-content">
-        <div className="today-donut-wrap"><svg className="today-donut" viewBox="0 0 180 180" role="img" aria-label={totalEvents ? statuses.map(status => `${status.label}: ${status.orders.length} đơn`).join(', ') : 'Chưa có hoạt động đơn hôm nay'}>
-          <circle cx="90" cy="90" r="64" fill="none" stroke="#eef2f7" strokeWidth="17" />
-          {statuses.map((status, index) => {
-            const count = status.orders.length;
-            const preceding = statuses.slice(0, index).reduce((sum, item) => sum + item.orders.length, 0);
-            return count > 0 && <circle className="donut-segment" key={status.label} cx="90" cy="90" r="64" fill="none" stroke={status.color} strokeWidth={activeStatus === index ? 20 : 17} strokeLinecap="round" opacity={activeStatus === null || activeStatus === index ? 1 : .22} strokeDasharray={`${Math.max(.1, count / totalEvents * circumference - (nonEmptyStatuses > 1 ? Math.min(6, count / totalEvents * circumference * .17) : 0))} ${circumference}`} strokeDashoffset={-preceding / totalEvents * circumference} transform="rotate(-90 90 90)"><title>{`${status.label}: ${count} đơn · ${money(status.orders.reduce((sum, order) => sum + order.price, 0))}`}</title></circle>;
-          })}
-          <text x="90" y="88" textAnchor="middle" className="donut-value">{selectedStatus ? selectedStatus.orders.length : totalEvents}</text>
-          <text x="90" y="108" textAnchor="middle" className="donut-label">{selectedStatus ? selectedStatus.shortLabel : 'lượt hoạt động'}</text>
-        </svg><span className="donut-orbit" /></div>
-        <div className="today-status-list">{statuses.map((status, index) => <button type="button" aria-pressed={activeRevenueSeries === status.key} className={activeStatus === index || activeRevenueSeries === status.key ? 'is-active' : ''} key={status.label} onClick={() => { setActiveRevenueSeries(status.key); setActiveHour(null); }} onPointerEnter={() => setActiveStatus(index)} onPointerLeave={() => setActiveStatus(null)} onFocus={() => setActiveStatus(index)} onBlur={() => setActiveStatus(null)}>
-          <span><i style={{ background: status.color }} />{status.label}</span><strong>{status.orders.length}<em>đơn</em></strong><small>{money(status.orders.reduce((sum, order) => sum + order.price, 0))}</small><ArrowRight size={13} />
-        </button>)}</div>
       </div>
     </section>
 
