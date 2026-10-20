@@ -137,7 +137,7 @@ export default function Dashboard({localStorageMode=false}:{localStorageMode?:bo
  </Modal>}
  {modal&&<Modal
   kind={modal}
-  title={modal==='order'?(editingOrder?'Chi tiết đơn #'+editingOrder.id:repeatOrderSource?'Tạo đơn lại · '+repeatOrderSource.customer:'Tạo đơn hàng nhanh'):modal==='spx'?`Nhập mã SPX · #${editingOrder?.id||''}`:modal==='expense'?(editingExpense?'Chỉnh sửa chi phí':'Thêm khoản chi'):'Hướng dẫn sử dụng'}
+  title={modal==='order'?(editingOrder?'Chi tiết đơn #'+editingOrder.id:repeatOrderSource?'Đơn mua lại · '+repeatOrderSource.customer:'Tạo đơn hàng nhanh'):modal==='spx'?`Nhập mã SPX · #${editingOrder?.id||''}`:modal==='expense'?(editingExpense?'Chỉnh sửa chi phí':'Thêm khoản chi'):'Hướng dẫn sử dụng'}
   close={()=>{if(!saving){setModal(null);setRepeatOrderSource(null);setError('');}}}
  >
   {error&&<div className="error-banner" role="alert">{error}</div>}
@@ -215,7 +215,7 @@ function OrderDetailDrawer({order,customerOrderCount,shippingFallback,returnRece
    <section className="drawer-section drawer-finance"><div className="drawer-section-title"><CircleDollarSign size={16}/><h3>Thanh toán & vận chuyển</h3></div><dl><div><dt>Giá trị đơn</dt><dd>{money(order.price)}</dd></div><div><dt>Giá vốn</dt><dd>{money(order.cost)}</dd></div><div><dt>Phí ship</dt><dd>{money(order.shippingFee??shippingFallback)}</dd></div><div><dt>Mã SPX</dt><dd className={order.spxCode?'drawer-spx':'spx-empty'}>{order.spxCode?<button className="spx-code" onClick={()=>void onCopy(order.spxCode!)}>{order.spxCode}<Copy size={12}/></button>:'Chưa có'}</dd></div></dl></section>
    {order.note&&<section className="drawer-section"><div className="drawer-section-title"><CircleHelp size={16}/><h3>Ghi chú</h3></div><p className="drawer-note">{order.note}</p></section>}
   </div>
-	  <div className="drawer-actions">{order.status==='Hoàn'&&returnReceived&&<span className="return-received"><Check size={14}/>Đã tự động nhập lại kho</span>}<button className="button reorder-button" disabled={saving} onClick={repeat}><RefreshCw size={14}/>Tạo đơn lại</button><button className="button" onClick={close}>Đóng</button><button className="button primary" onClick={edit}>Chỉnh sửa đơn</button></div>
+	  <div className="drawer-actions">{order.status==='Hoàn'&&returnReceived&&<span className="return-received"><Check size={14}/>Đã tự động nhập lại kho</span>}<button className="button reorder-button" disabled={saving} onClick={repeat}><RefreshCw size={14}/>Tạo đơn mới cho khách</button><button className="button" onClick={close}>Đóng</button><button className="button primary" onClick={edit}>Chỉnh sửa đơn</button></div>
  </aside>;
 }
 function Modal({kind,title,close,children}:{kind:'order'|'spx'|'expense'|'help'|'performance';title:string;close:()=>void;children:React.ReactNode}){
@@ -253,7 +253,7 @@ function OrderForm({order,template,shop,saving,onSave,onDelete}:{order:Order|nul
  const totalPrice=items.reduce((sum,item)=>sum+item.price,0);
  const totalCost=items.reduce((sum,item)=>sum+item.cost,0);
 	 return <form className="order-form quick-order-form" onSubmit={e=>{e.preventDefault();const f=new FormData(e.currentTarget);const val=(k:string)=>String(f.get(k)||'').trim();const id=order?.id||'VAN-'+String(Math.max(0,...shop.orders.map(o=>Number(o.id.match(/^VAN-(\d+)$/)?.[1])||0))+1).padStart(3,'0');const requestedDay=order?val('date'):'',storedCreatedAt=order?.created_at||order?.date,createdAt=order?(requestedDay===createdDate(order)?storedCreatedAt:storedCreatedAt&&/T\d{2}:/.test(storedCreatedAt)?requestedDay+storedCreatedAt.slice(10):requestedDay):creationTimestamp,createdDay=order?requestedDay:creationTimestamp.slice(0,10),status=val('status');void onSave({...(order||{}),id,date:createdDay,created_at:createdAt,shipped_at:val('shipped_at')||order?.shipped_at,delivered_at:val('delivered_at')||order?.delivered_at,returned_at:val('returned_at')||order?.returned_at,spxCode:val('spxCode')||undefined,shippingFee,customer:val('customer'),phone:val('phone'),address:val('address'),note:val('note'),status,items,product:[...new Set(items.map(i=>i.product))].join(' + '),size:[...new Set(items.map(i=>i.size).filter(Boolean))].join(', '),quantity:totalQuantity,price:totalPrice,cost:totalCost});}}>
-	  {template&&<div className="repeat-order-banner"><span><RefreshCw size={16}/></span><div><strong>Khách cũ mua lại</strong><small>Đã sao chép thông tin giao hàng và sản phẩm từ đơn #{template.id}. Kiểm tra lại trước khi tạo đơn mới.</small></div></div>}
+	  {template&&<div className="repeat-order-banner"><span><RefreshCw size={16}/></span><div><strong>Khách cũ</strong><small>Đã sao chép thông tin khách và sản phẩm từ đơn #{template.id}. Kiểm tra lại trước khi tạo đơn mới.</small></div></div>}
   <div className="order-form-content quick-order-layout">
    <section className="order-section quick-customer-panel">
     <div className="order-section-heading"><span className="section-icon"><UserRound size={16}/></span><h3>Khách hàng & giao nhận</h3></div>
