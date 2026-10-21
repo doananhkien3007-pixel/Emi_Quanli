@@ -1377,6 +1377,21 @@
       "name": "Váy lụa hoa tím",
       "price": 279000.0,
       "cost": 127000.0
+    },
+    {
+      "name": "Xanh coban",
+      "price": 260000.0,
+      "cost": 100000.0
+    },
+    {
+      "name": "Váy hoa cổ giọt lệ xanh",
+      "price": 279000.0,
+      "cost": 127000.0
+    },
+    {
+      "name": "Váy hoa cổ giọt lệ đỏ",
+      "price": 279000.0,
+      "cost": 127000.0
     }
   ],
   "settings": {

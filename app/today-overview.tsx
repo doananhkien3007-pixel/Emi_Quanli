@@ -9,6 +9,7 @@ import {
   Megaphone,
   Package,
   PackageSearch,
+  Plus,
   QrCode,
   Sparkles,
   Target,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 import { money, shortMoney } from '../lib/model';
 import type { todayOperations } from '../lib/analytics';
+import styles from './today-actions.module.css';
 
 type Operations = ReturnType<typeof todayOperations>;
 
@@ -73,7 +75,7 @@ export function TodayOverview({ data, spxCount, neededCount, staleCount, onSpx, 
     { label: 'Hoàn', shortLabel: 'đơn hoàn', orders: data.returned, color: '#e86c8b' },
   ];
   const totalEvents = statuses.reduce((sum, status) => sum + status.orders.length, 0);
-  const totalTasks = spxCount + neededCount + staleCount;
+  const pendingGroups = [spxCount, neededCount, staleCount].filter(count => count > 0).length;
   const circumference = 2 * Math.PI * 64;
   const selectedHour = activeHour === null ? null : data.hours[activeHour];
   const selectedStatus = activeStatus === null ? null : statuses[activeStatus];
@@ -153,20 +155,52 @@ export function TodayOverview({ data, spxCount, neededCount, staleCount, onSpx, 
       </div>
     </section>
 
-    <section className={`today-tasks ${tasksOpen ? 'tasks-open' : 'tasks-collapsed'}`} aria-labelledby="today-tasks-title">
-      <div className="today-tasks-title"><div><span className="today-tasks-kicker">ƯU TIÊN HÔM NAY</span><h2 id="today-tasks-title">Cần xử lý</h2><p>{totalTasks ? 'Xử lý theo thứ tự để đơn đi nhanh hơn' : 'Mọi việc quan trọng đã hoàn tất'}</p></div><strong>{totalTasks}<small>việc</small></strong><button type="button" className="today-tasks-toggle" aria-expanded={tasksOpen} aria-controls={tasksId} onClick={() => setTasksOpen(open => !open)}><span>{tasksOpen ? 'Thu gọn' : 'Mở danh sách'}</span><ChevronDown size={16} /></button></div>
-      <div className="today-task-actions" id={tasksId}>
-        <button className="today-task-card task-spx" onClick={onSpx}><span className="today-task-icon"><QrCode size={18} /></span><span className="today-task-copy"><b>Chưa tạo đơn SPX</b><small>Tạo mã để sẵn sàng gửi hàng</small></span><strong>{spxCount}</strong><ArrowRight size={16} /></button>
-        <button className="today-task-card task-stock" onClick={onNeeded}><span className="today-task-icon"><PackageSearch size={18} /></span><span className="today-task-copy"><b>Cần lấy hàng từ xưởng</b><small>Bổ sung hàng còn thiếu cho đơn</small></span><strong>{neededCount}</strong><ArrowRight size={16} /></button>
-        <button className="today-task-card task-stale" onClick={onStale}><span className="today-task-icon"><Clock3 size={18} /></span><span className="today-task-copy"><b>Quá 3 ngày chưa giao</b><small>Kiểm tra tiến độ và cập nhật đơn</small></span><strong>{staleCount}</strong><ArrowRight size={16} /></button>
+    <section className={styles.tasks} aria-labelledby="today-tasks-title">
+      <div className={styles.sectionHeading}>
+        <div><div className={styles.titleLine}><h2 id="today-tasks-title">Cần xử lý</h2><span className={styles.groupBadge}>{pendingGroups ? `${pendingGroups} nhóm cần xử lý` : 'Đã hoàn tất'}</span></div><p>Các việc cần chú ý để đơn hàng đi đúng tiến độ.</p></div>
+        <button type="button" className={styles.toggle} aria-expanded={tasksOpen} aria-controls={tasksId} onClick={() => setTasksOpen(open => !open)}><span>{tasksOpen ? 'Thu gọn' : 'Mở danh sách'}</span><ChevronDown size={15} aria-hidden="true" /></button>
+      </div>
+      <div className={styles.taskGrid} id={tasksId} hidden={!tasksOpen}>
+        {[
+          { key: 'spx', title: 'Chưa tạo đơn SPX', description: 'Tạo mã vận đơn để sẵn sàng gửi hàng', count: spxCount, unit: 'đơn hàng', action: 'Tạo vận đơn', icon: QrCode, onClick: onSpx },
+          { key: 'stock', title: 'Cần lấy hàng từ xưởng', description: 'Bổ sung sản phẩm còn thiếu cho đơn', count: neededCount, unit: 'sản phẩm', action: 'Xem hàng cần nhập', icon: PackageSearch, onClick: onNeeded },
+          { key: 'stale', title: 'Quá 3 ngày chưa giao', description: 'Kiểm tra vận chuyển và cập nhật đơn', count: staleCount, unit: 'đơn hàng', action: 'Kiểm tra đơn hàng', icon: Clock3, onClick: onStale },
+        ].map(task => <button type="button" key={task.key} className={`${styles.taskCard} ${styles[task.key]} ${task.count === 0 ? styles.complete : ''}`} onClick={task.onClick}>
+          <span className={styles.taskTop}><span className={styles.taskIcon}><task.icon size={20} aria-hidden="true" /></span><span className={styles.taskCount}><strong>{task.count.toLocaleString('vi-VN')}</strong><small>{task.unit}</small></span></span>
+          <span className={styles.taskCopy}><b>{task.title}</b><small>{task.count ? task.description : 'Không có mục nào cần xử lý'}</small></span>
+          <span className={styles.taskAction}>{task.count ? task.action : 'Xem danh sách'}<ArrowRight size={15} aria-hidden="true" /></span>
+        </button>)}
       </div>
     </section>
 
-    <div className="today-ads" aria-label="Chỉ số kinh doanh hôm nay">
-      <section className="panel mini-today-stat ads"><div><span className="metric-icon"><Megaphone size={17} /></span><span>Chi phí Ads</span><button className="text-button" onClick={onAds}>Nhập Ads</button></div><strong><AnimatedMetric value={data.ads} format={value => money(Math.round(value))} /></strong><div className="metric-foot"><span>Ads / doanh thu</span><b>{adsShare.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%</b></div><span className="metric-track"><i style={{ width: `${Math.min(100, adsShare)}%` }} /></span></section>
-      <section className="panel mini-today-stat cpa"><div><span className="metric-icon"><Target size={17} /></span><span>CPA hôm nay</span><small>mỗi đơn chốt</small></div><strong>{data.cpa === null ? '—' : <AnimatedMetric value={data.cpa} format={value => money(Math.round(value))} />}</strong><div className="metric-foot"><span>Giá trị đơn TB</span><b>{money(averageOrder)}</b></div><span className="metric-track"><i style={{ width: `${averageOrder > 0 && data.cpa !== null ? Math.min(100, data.cpa / averageOrder * 100) : 0}%` }} /></span></section>
-      <section className="panel mini-today-stat roas"><div><span className="metric-icon"><TrendingUp size={17} /></span><span>ROAS chốt</span><small>mục tiêu 4x</small></div><strong>{data.closedRoas === null ? '—' : <AnimatedMetric value={data.closedRoas} format={value => `${value.toLocaleString('vi-VN', { maximumFractionDigits: 2 })}x`} />}</strong><div className="metric-foot"><span>Tiến độ mục tiêu</span><b>{Math.round(roasProgress)}%</b></div><span className="metric-track"><i style={{ width: `${roasProgress}%` }} /></span></section>
-      <section className="panel mini-today-stat products"><div><span className="metric-icon"><Package size={17} /></span><span>Sản phẩm đã chốt</span><small>hôm nay</small></div><strong><AnimatedMetric value={data.productQuantity} format={value => Math.round(value).toLocaleString('vi-VN')} /></strong><div className="metric-foot"><span>Sản phẩm / đơn</span><b>{productPerOrder.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}</b></div><span className="metric-track"><i style={{ width: `${Math.min(100, productPerOrder / 3 * 100)}%` }} /></span></section>
-    </div>
+    <section className={styles.metrics} aria-labelledby="today-metrics-title">
+      <div className={styles.sectionHeading}><div className={styles.titleLine}><h2 id="today-metrics-title">Hiệu quả hôm nay</h2><span className={styles.period}>Trong ngày</span></div></div>
+      <div className={styles.metricGrid}>
+        <section className={`${styles.metric} ${styles.ads}`} aria-labelledby="today-ads-title">
+          <div className={styles.metricHeading}><span className={styles.metricIcon}><Megaphone size={18} aria-hidden="true" /></span><h3 id="today-ads-title">Chi phí Ads</h3></div>
+          <strong className={styles.value}><AnimatedMetric value={data.ads} format={value => money(Math.round(value))} /></strong>
+          <div className={styles.metricContext}><span>{data.ads === 0 ? 'Chưa ghi nhận chi phí' : 'Chi phí quảng cáo trong ngày'}</span><button type="button" className={styles.addAds} onClick={onAds}><Plus size={13} aria-hidden="true" />Nhập Ads</button></div>
+          <div className={styles.metricFooter}><span>Ads / doanh thu</span><b>{data.revenue > 0 ? `${adsShare.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}%` : '—'}</b></div>
+        </section>
+        <section className={`${styles.metric} ${styles.cpa}`} aria-labelledby="today-cpa-title">
+          <div className={styles.metricHeading}><span className={styles.metricIcon}><Target size={18} aria-hidden="true" /></span><h3 id="today-cpa-title">CPA hôm nay</h3></div>
+          <strong className={styles.value}>{data.cpa === null ? '—' : <AnimatedMetric value={data.cpa} format={value => money(Math.round(value))} />}</strong>
+          <div className={styles.metricContext}><span>Chi phí Ads trên mỗi đơn chốt</span></div>
+          <div className={styles.metricFooter}><span>Giá trị đơn TB</span><b>{data.created.length ? money(averageOrder) : '—'}</b></div>
+        </section>
+        <section className={`${styles.metric} ${styles.roas}`} aria-labelledby="today-roas-title">
+          <div className={styles.metricHeading}><span className={styles.metricIcon}><TrendingUp size={18} aria-hidden="true" /></span><h3 id="today-roas-title">ROAS chốt</h3></div>
+          <strong className={styles.value}>{data.closedRoas === null ? '—' : <AnimatedMetric value={data.closedRoas} format={value => `${value.toLocaleString('vi-VN', { maximumFractionDigits: 2 })}x`} />}</strong>
+          <div className={styles.metricContext}><span>{data.closedRoas === null ? 'Cần chi phí Ads để tính ROAS' : 'Doanh thu đơn chốt / chi phí Ads'}</span></div>
+          <div className={styles.roasFooter}><div className={styles.metricFooter}><span>Mục tiêu 4x</span><b>{data.closedRoas === null ? 'Chưa có dữ liệu' : `${Math.round(roasProgress)}%`}</b></div><div className={styles.progress} role="progressbar" aria-label="Tiến độ mục tiêu ROAS 4x" aria-valuemin={0} aria-valuemax={100} aria-valuenow={data.closedRoas === null ? undefined : Math.round(roasProgress)} aria-valuetext={data.closedRoas === null ? 'Chưa có dữ liệu' : `${Math.round(roasProgress)}%`}><span style={{ width: `${roasProgress}%` }} /></div></div>
+        </section>
+        <section className={`${styles.metric} ${styles.products}`} aria-labelledby="today-products-title">
+          <div className={styles.metricHeading}><span className={styles.metricIcon}><Package size={18} aria-hidden="true" /></span><h3 id="today-products-title">Sản phẩm đã chốt</h3></div>
+          <strong className={styles.value}><AnimatedMetric value={data.productQuantity} format={value => Math.round(value).toLocaleString('vi-VN')} /><small>sản phẩm</small></strong>
+          <div className={styles.metricContext}><span>Từ {data.created.length.toLocaleString('vi-VN')} đơn hàng hôm nay</span></div>
+          <div className={styles.metricFooter}><span>Sản phẩm / đơn</span><b>{data.created.length ? productPerOrder.toLocaleString('vi-VN', { maximumFractionDigits: 1 }) : '—'}</b></div>
+        </section>
+      </div>
+    </section>
   </div>;
 }
