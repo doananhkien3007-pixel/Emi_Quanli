@@ -62,7 +62,7 @@ async function saveSupabaseShop(slug:string,revision:number,data:Shop){
 export async function GET(){
  const config=getSupabaseConfig();
  if(config){
-  try{const value=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});const [times,images,metaAdSpend]=await Promise.all([getOrderCreationTimes(config.slug),getProductImages(config.slug),getMetaAdSpend(config.slug)]);return json({data:normalizeShop(withMetaAdSpend(withProductImages(withOrderCreationTimes(unpackLegacyCreationTimes(value.data),times),images),metaAdSpend)),revision:Number(value.revision)});}
+  try{const [value,times,images,metaAdSpend]=await Promise.all([supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug}),getOrderCreationTimes(config.slug),getProductImages(config.slug),getMetaAdSpend(config.slug)]);return json({data:normalizeShop(withMetaAdSpend(withProductImages(withOrderCreationTimes(unpackLegacyCreationTimes(value.data),times),images),metaAdSpend)),revision:Number(value.revision)});}
   catch{return json({error:'Chưa tải được dữ liệu từ Supabase.'},503);}
  }
  const user=await getChatGPTUser();if(!user)return json({error:'Vui lòng đăng nhập để xem dữ liệu.'},401);
@@ -83,9 +83,8 @@ export async function PUT(request:Request){
  const config=getSupabaseConfig();
  if(config){
   try{
-   const current=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});
+   const [current,times,metaAdSpend]=await Promise.all([supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug}),getOrderCreationTimes(config.slug),getMetaAdSpend(config.slug)]);
    if(Number(current.revision)!==revision)return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
-   const [times,metaAdSpend]=await Promise.all([getOrderCreationTimes(config.slug),getMetaAdSpend(config.slug)]);
    const update=prepareShopUpdate(normalizeShop(withMetaAdSpend(withOrderCreationTimes(unpackLegacyCreationTimes(current.data),times),metaAdSpend)),data as Shop,businessDay);
    if(!update.data)return json({error:update.error},400);
    const saved=await saveSupabaseShop(config.slug,revision,update.data);
