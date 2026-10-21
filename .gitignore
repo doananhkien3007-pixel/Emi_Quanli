@@ -9,6 +9,7 @@
 # production / build
 /dist
 /.next/
+/.vinext/
 /out/
 
 # misc
