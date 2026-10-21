@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ImageOff, LoaderCircle, Megaphone, MessageCircle, MousePointerClick, RefreshCw, ShoppingCart, TrendingDown, TrendingUp, Users } from 'lucide-react';
+import { AlertTriangle, CircleDollarSign, ImageOff, LoaderCircle, Megaphone, MessageCircle, MousePointerClick, RefreshCw, ShoppingCart, TrendingDown, TrendingUp, Users } from 'lucide-react';
 import { previousAdsRange, rankAdsEntities, summarizeAds, type AdsEntitySummary, type MetaAdsInsight } from '../lib/ads-insights';
 import { money } from '../lib/model';
 
@@ -9,13 +9,14 @@ const compact=(value:number)=>new Intl.NumberFormat('vi-VN',{notation:'compact',
 const decimal=(value:number,digits=2)=>value.toLocaleString('vi-VN',{maximumFractionDigits:digits});
 const delta=(current:number,previous:number)=>previous===0?current===0?null:100:(current-previous)/Math.abs(previous)*100;
 
-function TrendBadge({current,previous,reverse=false}:{current:number;previous:number;reverse?:boolean}){
+function TrendBadge({current,previous,reverse=false}:{current:number|null;previous:number|null;reverse?:boolean}){
+ if(current===null||previous===null)return <span className="ads-delta neutral">Chưa có kỳ trước</span>;
  const change=delta(current,previous);if(change===null)return <span className="ads-delta neutral">Không đổi</span>;
  const good=reverse?change<=0:change>=0;
  return <span className={`ads-delta ${good?'good':'bad'}`}>{change>0?'+':''}{decimal(change,1)}% {change>0?<TrendingUp size={12}/>:<TrendingDown size={12}/>}</span>;
 }
 
-function Kpi({label,value,note,icon:Icon,current,previous,reverse=false}:{label:string;value:string;note:string;icon:typeof Megaphone;current:number;previous:number;reverse?:boolean}){
+function Kpi({label,value,note,icon:Icon,current,previous,reverse=false}:{label:string;value:string;note:string;icon:typeof Megaphone;current:number|null;previous:number|null;reverse?:boolean}){
  return <article className="ads-kpi"><div className="ads-kpi-heading"><span>{label}</span><Icon size={18}/></div><strong>{value}</strong><div className="ads-kpi-footer"><small>{note}</small><TrendBadge current={current} previous={previous} reverse={reverse}/></div></article>;
 }
 
@@ -61,6 +62,7 @@ export function AdsDashboard({from,to,localStorageMode,syncing,refreshKey,onSync
  const ranking=useMemo(()=>rankAdsEntities(currentRows,previousRows),[currentRows,previousRows]);
  const lastSynced=rows.reduce((latest,row)=>row.syncedAt>latest?row.syncedAt:latest,'');
  const messageCost=summary.messages?summary.spend/summary.messages:null;
+ const previousMessageCost=previousSummary.messages?previousSummary.spend/previousSummary.messages:null;
  const closeRate=summary.messages?summary.purchases/summary.messages*100:null;
  const previousCloseRate=previousSummary.messages?previousSummary.purchases/previousSummary.messages*100:null;
  const purchaseCpa=summary.purchases?summary.spend/summary.purchases:null;
@@ -71,10 +73,11 @@ export function AdsDashboard({from,to,localStorageMode,syncing,refreshKey,onSync
   {error&&<div className="error-banner" role="alert">{error}</div>}
   <section className="ads-kpi-grid" aria-busy={loading}>
    <Kpi label="Chi tiêu" value={money(summary.spend)} note="Ngân sách đã chi" icon={Megaphone} current={summary.spend} previous={previousSummary.spend} reverse/>
-   <Kpi label="Tin nhắn" value={decimal(summary.messages,1)} note={`Giá Mess ${messageCost===null?'—':money(messageCost)} · ${decimal(summary.leads,1)} khách tiềm năng`} icon={MessageCircle} current={summary.messages} previous={previousSummary.messages}/>
-   <Kpi label="Tỷ lệ chốt" value={closeRate===null?'—':`${decimal(closeRate)}%`} note={`${decimal(summary.purchases,1)} đơn mua / ${decimal(summary.messages,1)} tin nhắn`} icon={Users} current={closeRate||0} previous={previousCloseRate||0}/>
-   <Kpi label="CPA" value={purchaseCpa===null?'—':money(purchaseCpa)} note="Chi phí quảng cáo mỗi đơn mua" icon={ShoppingCart} current={purchaseCpa||0} previous={previousPurchaseCpa||0} reverse/>
-   <Kpi label="ROAS" value={summary.roas===null?'—':`${decimal(summary.roas)}x`} note={`Doanh thu Meta ${money(summary.purchaseValue)}`} icon={TrendingUp} current={summary.roas||0} previous={previousSummary.roas||0}/>
+   <Kpi label="Tin nhắn" value={decimal(summary.messages,1)} note={`${decimal(summary.leads,1)} khách tiềm năng toàn tài khoản`} icon={MessageCircle} current={summary.messages} previous={previousSummary.messages}/>
+   <Kpi label="Giá Mess TB" value={messageCost===null?'—':money(messageCost)} note="Tổng chi tiêu / tổng tin nhắn" icon={CircleDollarSign} current={messageCost} previous={previousMessageCost} reverse/>
+   <Kpi label="Tỷ lệ chốt" value={closeRate===null?'—':`${decimal(closeRate)}%`} note={`${decimal(summary.purchases,1)} đơn mua / ${decimal(summary.messages,1)} tin nhắn`} icon={Users} current={closeRate} previous={previousCloseRate}/>
+   <Kpi label="CPA" value={purchaseCpa===null?'—':money(purchaseCpa)} note="Chi phí quảng cáo mỗi đơn mua" icon={ShoppingCart} current={purchaseCpa} previous={previousPurchaseCpa} reverse/>
+   <Kpi label="ROAS" value={summary.roas===null?'—':`${decimal(summary.roas)}x`} note={`Doanh thu Meta ${money(summary.purchaseValue)}`} icon={TrendingUp} current={summary.roas} previous={previousSummary.roas}/>
    <Kpi label="CTR / CPC" value={`${decimal(summary.ctr)}% / ${money(summary.cpc)}`} note={`${compact(summary.clicks)} lượt nhấp · giá mỗi lượt nhấp`} icon={MousePointerClick} current={summary.ctr} previous={previousSummary.ctr}/>
   </section>
   <section className="panel ads-ranking-panel">
