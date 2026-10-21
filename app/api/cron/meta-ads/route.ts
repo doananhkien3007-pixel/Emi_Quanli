@@ -1,7 +1,6 @@
-import { cronMode, syncMetaSpend } from '../../../../lib/meta-ads';
+import { cronMode, syncMetaAds } from '../../../../lib/meta-ads';
 
 export const dynamic='force-dynamic';
-export const runtime='nodejs';
 
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 
@@ -12,7 +11,7 @@ export async function GET(request:Request){
  const mode=cronMode(request.headers.get('x-vercel-cron-schedule'),url.searchParams.get('mode'));
  if(!mode)return json({ok:false,error:'unknown_sync_schedule'},400);
  try{
-  const result=await syncMetaSpend(mode);
+  const result=await syncMetaAds(mode);
   console.info(JSON.stringify({event:'meta_ads_sync_completed',...result}));
   return json({ok:true,...result});
  }catch(error){

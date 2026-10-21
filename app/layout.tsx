@@ -4,6 +4,7 @@ import "./workspace.css";
 import "./saas.css";
 import "./compact.css";
 import "./product-catalog.css";
+import "./ads-dashboard.css";
 
 export const metadata: Metadata = {
   title: "Emi House — Quản lý shop",
