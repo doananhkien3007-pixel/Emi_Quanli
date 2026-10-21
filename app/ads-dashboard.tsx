@@ -91,12 +91,12 @@ export function AdsDashboard({from,to,localStorageMode,syncing,refreshKey,onSync
       return <tr key={entity.entityId} className={entity.flags.some(flag=>flag!=='improving')?'ads-risk-row':''}>
        <td><div className="ads-campaign-name"><CreativeThumbnail key={entity.creativeThumbnailUrl||'empty'} src={entity.creativeThumbnailUrl} name={entity.entityName} active={entity.status==='ACTIVE'}/><strong className="ads-entity-name" title={entity.entityName}>{entity.entityName}</strong></div></td>
        <td><span className={`ads-status ${entity.status==='ACTIVE'?'active':''}`}><i/>{entity.status==='ACTIVE'?'Đang chạy':entity.status.replaceAll('_',' ')}</span></td>
-       <td className="number"><strong>{money(entity.spend)}</strong>{entity.previous&&<TrendBadge current={entity.spend} previous={entity.previous.spend} reverse/>}</td>
+       <td className="number"><div className="ads-cell-metric"><strong>{money(entity.spend)}</strong>{entity.previous?<TrendBadge current={entity.spend} previous={entity.previous.spend} reverse/>:<span className="ads-delta-spacer" aria-hidden="true"/>}</div></td>
        <td className="number"><strong>{decimal(entity.messages,1)}</strong></td>
        <td className="number"><strong>{decimal(entity.purchases,1)}</strong></td>
        <td className="number"><strong>{entityCloseRate===null?'—':`${decimal(entityCloseRate)}%`}</strong></td>
        <td className="number"><strong>{entityMessageCost===null?'—':money(entityMessageCost)}</strong></td>
-       <td className="number"><strong>{entityPurchaseCpa===null?'—':money(entityPurchaseCpa)}</strong>{entityPurchaseCpa!==null&&previousPurchaseCpa!==null&&<TrendBadge current={entityPurchaseCpa} previous={previousPurchaseCpa} reverse/>}</td>
+       <td className="number"><div className="ads-cell-metric"><strong>{entityPurchaseCpa===null?'—':money(entityPurchaseCpa)}</strong>{entityPurchaseCpa!==null&&previousPurchaseCpa!==null?<TrendBadge current={entityPurchaseCpa} previous={previousPurchaseCpa} reverse/>:<span className="ads-delta-spacer" aria-hidden="true"/>}</div></td>
        <td className="number"><strong>{money(entity.purchaseValue)}</strong></td>
        <td className="number"><strong>{entityAov===null?'—':money(entityAov)}</strong></td>
        <td className="number"><strong className={entity.roas!==null&&entity.roas<1.5?'ads-roas-low':''}>{entity.roas===null?'—':`${decimal(entity.roas)}x`}</strong></td>
