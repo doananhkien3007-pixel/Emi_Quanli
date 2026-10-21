@@ -7,7 +7,7 @@ export type ProcurementTaken={orderId:string;itemId:string;variant:string;quanti
 export type InventoryAllocation={orderId:string;itemId:string;variant:string;quantity:number};
 export type InventoryStocktake={countedOn:string;absorbedReturnOrderIds:string[];items:{product:string;color:string;size:string;quantity:number;unitCost:number}[]};
 export type InventoryState={returnReceipts:ReturnReceipt[];procurementTaken:ProcurementTaken[];allocations:InventoryAllocation[];stocktake?:InventoryStocktake};
-export type Shop = {orders:Order[];expenses:Expense[];products:{name:string;price:number;cost:number}[];settings:{shipping:number;returnShipping:number;platformRate:number;cardRate:number;returnRateThreshold?:number};undatedInbound:number;source:string;inventory?:InventoryState};
+export type Shop = {orders:Order[];expenses:Expense[];products:{name:string;price:number;cost:number;image?:string}[];settings:{shipping:number;returnShipping:number;platformRate:number;cardRate:number;returnRateThreshold?:number};undatedInbound:number;source:string;inventory?:InventoryState};
 export type InventoryRequirement={key:string;orderId:string;itemId:string;customer:string;createdAt:string;product:string;color:string;size:string;ordered:number;fromStock:number;required:number;taken:number;pending:number;status:'Chưa lấy'|'Đã lấy'};
 export type InventoryStock={key:string;product:string;color:string;size:string;quantity:number;unitCost:number;sourceOrders:string[]};
 export const money = (n:number) => new Intl.NumberFormat('vi-VN',{maximumFractionDigits:0}).format(n) + ' ₫';

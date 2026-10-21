@@ -6,4 +6,4 @@ const images:Record<string,string>={
  'Váy lụa hoa hồng':'/products/hong.jpg',
 };
 
-export function productImage(name:string){return images[name];}
+export function productImage(name:string,products?:{name:string;image?:string}[]){return products?.find(product=>product.name===name)?.image||images[name];}

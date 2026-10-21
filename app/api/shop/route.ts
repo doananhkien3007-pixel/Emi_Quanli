@@ -44,23 +44,33 @@ const packLegacyCreationTimes=(shop:Shop):Shop=>({...shop,orders:shop.orders.map
   :{...order,note:cleanNote};
 })});
 const withOrderCreationTimes=(shop:Shop,times:Record<string,string>)=>({...shop,orders:shop.orders.map(order=>times[order.id]?{...order,created_at:times[order.id]}:order)});
+const withProductImages=(shop:Shop,images:Record<string,string>)=>({...shop,products:shop.products.map(product=>images[product.name]?{...product,image:images[product.name]}:product)});
 const supabaseErrorField=(error:unknown,field:'code'|'status')=>typeof error==='object'&&error!==null&&field in error?String((error as Record<string,unknown>)[field]):'';
 const isMissingRpc=(error:unknown)=>['PGRST202','42883'].includes(supabaseErrorField(error,'code'))||supabaseErrorField(error,'status')==='404';
 async function getOrderCreationTimes(slug:string){
  try{return await supabaseRpc<Record<string,string>>('get_emi_order_creation_times',{p_slug:slug});}
  catch(error){if(isMissingRpc(error))return {};throw error;}
 }
+async function getProductImages(slug:string){
+ try{return await supabaseRpc<Record<string,string>>('get_emi_product_images',{p_slug:slug});}
+ catch(error){if(isMissingRpc(error))return {};throw error;}
+}
 async function saveSupabaseShop(slug:string,revision:number,data:Shop){
- try{return await supabaseRpc<{data:Shop;revision:number}>('save_emi_shop_with_creation_times',{p_slug:slug,p_expected_revision:revision,p_data:data});}
+ try{return await supabaseRpc<{data:Shop;revision:number}>('save_emi_shop_with_product_images',{p_slug:slug,p_expected_revision:revision,p_data:data});}
  catch(error){
   if(!isMissingRpc(error))throw error;
-  return supabaseRpc<{data:Shop;revision:number}>('save_emi_shop',{p_slug:slug,p_expected_revision:revision,p_data:packLegacyCreationTimes(data)});
+  if(data.products.some(product=>product.image))throw new Error('product_image_storage_unavailable');
+  try{return await supabaseRpc<{data:Shop;revision:number}>('save_emi_shop_with_creation_times',{p_slug:slug,p_expected_revision:revision,p_data:data});}
+  catch(legacyError){
+   if(!isMissingRpc(legacyError))throw legacyError;
+   return supabaseRpc<{data:Shop;revision:number}>('save_emi_shop',{p_slug:slug,p_expected_revision:revision,p_data:packLegacyCreationTimes(data)});
+  }
  }
 }
 export async function GET(){
  const config=supabaseConfig();
  if(config){
-  try{const value=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});const times=await getOrderCreationTimes(config.slug);return json({data:normalizeShop(withOrderCreationTimes(unpackLegacyCreationTimes(value.data),times)),revision:Number(value.revision)});}
+  try{const value=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});const [times,images]=await Promise.all([getOrderCreationTimes(config.slug),getProductImages(config.slug)]);return json({data:normalizeShop(withProductImages(withOrderCreationTimes(unpackLegacyCreationTimes(value.data),times),images)),revision:Number(value.revision)});}
   catch{return json({error:'Chưa tải được dữ liệu từ Supabase.'},503);}
  }
  const user=await getChatGPTUser();if(!user)return json({error:'Vui lòng đăng nhập để xem dữ liệu.'},401);
@@ -84,7 +94,7 @@ export async function PUT(request:Request){
    const update=prepareShopUpdate(normalizeShop(withOrderCreationTimes(unpackLegacyCreationTimes(current.data),times)),data as Shop,businessDay);
    if(!update.data)return json({error:update.error},400);
    const saved=await saveSupabaseShop(config.slug,revision,update.data);
-   return json({data:normalizeShop(unpackLegacyCreationTimes(saved.data)),revision:Number(saved.revision)});
+   return json({data:normalizeShop(withProductImages(unpackLegacyCreationTimes(saved.data),Object.fromEntries(update.data.products.filter(product=>product.image).map(product=>[product.name,product.image!])))),revision:Number(saved.revision)});
   }catch(error){
    const code=error instanceof Error&&'code' in error?String(error.code):'';
    if(code==='40001')return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
