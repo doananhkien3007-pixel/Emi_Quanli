@@ -3,25 +3,9 @@ import { getChatGPTUser } from '../../chatgpt-auth';
 import { normalizeShop, shopSchema, prepareShopUpdate } from '../../../lib/shop-validation';
 import { shopToday } from '../../../lib/analytics';
 import { type Shop } from '../../../lib/model';
+import { getSupabaseConfig, SupabaseRpcError, supabaseRpc } from '../../../lib/supabase-server';
 export const dynamic = 'force-dynamic';
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
-const supabaseConfig=()=>{
- const url=process.env.SUPABASE_URL?.replace(/\/$/,'');
- const key=process.env.SUPABASE_PUBLISHABLE_KEY;
- const accessToken=process.env.SUPABASE_ACCESS_TOKEN;
- const slug=process.env.SUPABASE_SHOP_SLUG||'emi-house';
- return url&&key&&accessToken?{url,key,accessToken,slug}:null;
-};
-async function supabaseRpc<T>(name:string,body:Record<string,unknown>){
- const config=supabaseConfig();
- if(!config)throw new Error('supabase_not_configured');
- const response=await fetch(`${config.url}/rest/v1/rpc/${name}`,{
-  method:'POST',cache:'no-store',headers:{apikey:config.key,'Content-Type':'application/json'},body:JSON.stringify({...body,p_access_token:config.accessToken})
- });
- const value=await response.json().catch(()=>({})) as T&{code?:string;message?:string};
- if(!response.ok)throw Object.assign(new Error(value.message||'supabase_request_failed'),{code:value.code,status:response.status});
- return value;
-}
 // Imported customer records belong to existing owners. Never copy them to a new account.
 const emptyShop:Shop={orders:[],expenses:[],products:[],settings:{shipping:0,returnShipping:0,platformRate:0,cardRate:0,returnRateThreshold:15},undatedInbound:0,source:'Chưa nhập dữ liệu'};
 // The current production schema stores the business creation value in a DATE
@@ -45,6 +29,7 @@ const packLegacyCreationTimes=(shop:Shop):Shop=>({...shop,orders:shop.orders.map
 })});
 const withOrderCreationTimes=(shop:Shop,times:Record<string,string>)=>({...shop,orders:shop.orders.map(order=>times[order.id]?{...order,created_at:times[order.id]}:order)});
 const withProductImages=(shop:Shop,images:Record<string,string>)=>({...shop,products:shop.products.map(product=>images[product.name]?{...product,image:images[product.name]}:product)});
+const withMetaAdSpend=(shop:Shop,metaAdSpend:NonNullable<Shop['metaAdSpend']>)=>({...shop,metaAdSpend});
 const supabaseErrorField=(error:unknown,field:'code'|'status')=>typeof error==='object'&&error!==null&&field in error?String((error as Record<string,unknown>)[field]):'';
 const isMissingRpc=(error:unknown)=>['PGRST202','42883'].includes(supabaseErrorField(error,'code'))||supabaseErrorField(error,'status')==='404';
 async function getOrderCreationTimes(slug:string){
@@ -54,6 +39,13 @@ async function getOrderCreationTimes(slug:string){
 async function getProductImages(slug:string){
  try{return await supabaseRpc<Record<string,string>>('get_emi_product_images',{p_slug:slug});}
  catch(error){if(isMissingRpc(error))return {};throw error;}
+}
+async function getMetaAdSpend(slug:string){
+ try{return await supabaseRpc<NonNullable<Shop['metaAdSpend']>>('get_emi_meta_ad_spend',{p_slug:slug});}
+ catch(error){
+  if(!isMissingRpc(error))console.error(JSON.stringify({event:'meta_ad_spend_read_failed',error:error instanceof Error?error.message:'unknown_error'}));
+  return [];
+ }
 }
 async function saveSupabaseShop(slug:string,revision:number,data:Shop){
  try{return await supabaseRpc<{data:Shop;revision:number}>('save_emi_shop_with_product_images',{p_slug:slug,p_expected_revision:revision,p_data:data});}
@@ -68,9 +60,9 @@ async function saveSupabaseShop(slug:string,revision:number,data:Shop){
  }
 }
 export async function GET(){
- const config=supabaseConfig();
+ const config=getSupabaseConfig();
  if(config){
-  try{const value=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});const [times,images]=await Promise.all([getOrderCreationTimes(config.slug),getProductImages(config.slug)]);return json({data:normalizeShop(withProductImages(withOrderCreationTimes(unpackLegacyCreationTimes(value.data),times),images)),revision:Number(value.revision)});}
+  try{const value=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});const [times,images,metaAdSpend]=await Promise.all([getOrderCreationTimes(config.slug),getProductImages(config.slug),getMetaAdSpend(config.slug)]);return json({data:normalizeShop(withMetaAdSpend(withProductImages(withOrderCreationTimes(unpackLegacyCreationTimes(value.data),times),images),metaAdSpend)),revision:Number(value.revision)});}
   catch{return json({error:'Chưa tải được dữ liệu từ Supabase.'},503);}
  }
  const user=await getChatGPTUser();if(!user)return json({error:'Vui lòng đăng nhập để xem dữ liệu.'},401);
@@ -85,18 +77,18 @@ export async function PUT(request:Request){
  if(!input.success)return json({error:'Kiểm tra lại ngày, số tiền và các trường bắt buộc.'},400);
  const {data,revision}=input.data;
  const businessDay=shopToday();
- const config=supabaseConfig();
+ const config=getSupabaseConfig();
  if(config){
   try{
    const current=await supabaseRpc<{data:Shop;revision:number}>('get_emi_shop',{p_slug:config.slug});
    if(Number(current.revision)!==revision)return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
-   const times=await getOrderCreationTimes(config.slug);
-   const update=prepareShopUpdate(normalizeShop(withOrderCreationTimes(unpackLegacyCreationTimes(current.data),times)),data as Shop,businessDay);
+   const [times,metaAdSpend]=await Promise.all([getOrderCreationTimes(config.slug),getMetaAdSpend(config.slug)]);
+   const update=prepareShopUpdate(normalizeShop(withMetaAdSpend(withOrderCreationTimes(unpackLegacyCreationTimes(current.data),times),metaAdSpend)),data as Shop,businessDay);
    if(!update.data)return json({error:update.error},400);
    const saved=await saveSupabaseShop(config.slug,revision,update.data);
-   return json({data:normalizeShop(withProductImages(unpackLegacyCreationTimes(saved.data),Object.fromEntries(update.data.products.filter(product=>product.image).map(product=>[product.name,product.image!])))),revision:Number(saved.revision)});
+   return json({data:normalizeShop(withMetaAdSpend(withProductImages(unpackLegacyCreationTimes(saved.data),Object.fromEntries(update.data.products.filter(product=>product.image).map(product=>[product.name,product.image!]))),metaAdSpend)),revision:Number(saved.revision)});
   }catch(error){
-   const code=error instanceof Error&&'code' in error?String(error.code):'';
+   const code=error instanceof SupabaseRpcError?error.code:'';
    if(code==='40001')return json({error:'Dữ liệu vừa được cập nhật ở cửa sổ khác. Đóng biểu mẫu và tải lại trước khi lưu.'},409);
    return json({error:'Chưa lưu được dữ liệu vào Supabase.'},503);
   }

@@ -120,6 +120,14 @@ check('Today ROAS and product quantity sum every item, not order count',()=>{
  assert.equal(todayOperations({...shop,orders:[]},'2026-10-03').closedRoas,0);
  assert.equal(todayOperations({...shop,orders:[]},'2026-10-03').productQuantity,0);
 });
+check('Meta Ads replaces manual Ads for synchronized dates without double counting',()=>{
+ const shop={...base,metaAdSpend:[{date:'2026-10-03',amount:70000,currency:'VND',syncedAt:'2026-10-03T08:00:00+07:00',adFeeRate:11}]};
+ const metric=financialMetrics(shop,'2026-10-03','2026-10-03');
+ assert.equal(metric.ads,70000);assert.equal(metric.adFees,7700);
+ assert.equal(metric.expenses.filter(expense=>expense.category==='Quảng cáo').length,1);
+ assert.equal(metric.expenses.find(expense=>expense.category==='Quảng cáo').source,'meta');
+ const fallback=financialMetrics({...shop,metaAdSpend:[]},'2026-10-03','2026-10-03');assert.equal(fallback.ads,50000);
+});
 check('Cohort retains final revenue and costs on close date, including later returns',()=>{
  const shop={...base,expenses:base.expenses.map(e=>({...e,date:'2026-10-01'}))};
  const closed=cohortFinancialMetrics(shop,'2026-10-01','2026-10-01');assert.equal(closed.revenue,300000);assert.equal(closed.profit,117500);assert.equal(closed.deliveredCpa,50000);

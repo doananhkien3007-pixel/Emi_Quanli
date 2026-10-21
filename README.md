@@ -8,6 +8,7 @@ SaaS quản lý bán hàng tiếng Việt: dashboard thu–chi–lãi, đơn hà
 - `/signin-with-chatgpt?return_to=/`: đăng nhập mô phỏng, chỉ trên localhost.
 - `node scripts/check-metrics.mjs`: đối chiếu Excel và regression kho cũ.
 - `node scripts/check-business.mjs`: kiểm tra nghiệp vụ tài chính, kho, batch và validation.
+- `npm run check:meta-ads`: kiểm tra dải ngày Việt Nam và ánh xạ lịch Cron đồng bộ Meta Ads.
 - `node scripts/check-inventory.mjs`: kiểm tra vòng đời tồn/nhập/hoàn/hủy/rollback qua validation của server.
 - `npx tsc --noEmit`: kiểm tra TypeScript.
 - `npm run build`: build production.
@@ -26,6 +27,12 @@ Dữ liệu lưu riêng theo owner trong D1; API kiểm tra revision trước m�
 
 `db/seed.json` là dữ liệu Excel lịch sử để đối chiếu (50 đơn, 61 dòng sản phẩm, 9 khoản Ads), không dùng làm dữ liệu giả trên UI và không được chia sẻ công khai. Database preview và production độc lập.
 
-Xuất CSV theo bộ lọc hoặc sao lưu JSON trong Cài đặt. Chưa hỗ trợ tự đồng bộ Facebook/SPX, COD đối soát hoặc import Excel mới.
+## Đồng bộ Meta Ads trên Vercel
+
+Chạy migration Supabase `202610210002_meta_ad_spend_daily.sql`, sau đó cấu hình các biến server-only trong Vercel: `META_ACCESS_TOKEN` (Secret), `META_AD_ACCOUNT_ID`, `CRON_SECRET` (Secret), cùng các biến Supabase hiện có. Không dùng tiền tố `NEXT_PUBLIC_` cho token. Tài khoản quảng cáo phải dùng tiền tệ VND và timezone `Asia/Ho_Chi_Minh` (Meta cũng có thể trả tên cũ `Asia/Saigon`).
+
+Vercel Cron gọi `/api/cron/meta-ads`: mỗi 30 phút ghi đè hôm nay; 00:10 giờ Việt Nam chốt hôm qua; 08:05 backfill ba ngày đã hoàn tất gần nhất. Mọi lịch trong `vercel.json` là UTC. Khi Meta hoặc database lỗi, route ghi log có cấu trúc vào Vercel Logs và không sửa dữ liệu cũ. Với ngày đã đồng bộ, chi phí Meta thay thế khoản Ads nhập tay cùng ngày để tránh cộng trùng; các ngày chưa đồng bộ vẫn dùng chi phí nhập tay.
+
+Xuất CSV theo bộ lọc hoặc sao lưu JSON trong Cài đặt. Chưa hỗ trợ tự đồng bộ SPX, COD đối soát hoặc import Excel mới.
 
 Xem `AUDIT.md` cho quy tắc ghi nhận, phạm vi, giới hạn và kiểm chứng; `DESIGN.md` cho hệ thống giao diện.

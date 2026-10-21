@@ -2,5 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "next build --webpack",
-  "installCommand": "npm ci"
+  "installCommand": "npm ci",
+  "crons": [
+    { "path": "/api/cron/meta-ads", "schedule": "*/30 * * * *" },
+    { "path": "/api/cron/meta-ads", "schedule": "10 17 * * *" },
+    { "path": "/api/cron/meta-ads", "schedule": "5 1 * * *" }
+  ]
 }

@@ -1,4 +1,4 @@
-import { createdDate, eventDate, type Order, type Shop } from './model.ts';
+import { createdDate, effectiveExpenses, eventDate, type Order, type Shop } from './model.ts';
 
 export const shopToday = () => new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit',
@@ -26,14 +26,14 @@ export function previousPeriod(from: string, to: string) {
 
 export function firstActivityDate(shop: Shop, fallback: string) {
   return [...shop.orders.flatMap(order => [createdDate(order), order.shipped_at, order.delivered_at, order.returned_at]),
-    ...shop.expenses.map(expense => expense.date)].filter((date): date is string => !!date).sort()[0] || fallback;
+    ...effectiveExpenses(shop).map(expense => expense.date)].filter((date): date is string => !!date).sort()[0] || fallback;
 }
 
 /** Historical imports have no event dates. Use their order date visibly, without modifying source data. */
 export function financialMetrics(shop: Shop, from: string, to: string, includeUndated = false) {
   const inRange = (date: string) => date >= from && date <= to;
   const orders = shop.orders.filter(order => order.status !== 'Hủy' && inRange(createdDate(order)));
-  const expenses = shop.expenses.filter(expense => inRange(expense.date));
+  const expenses = effectiveExpenses(shop).filter(expense => inRange(expense.date));
   const done = shop.orders.filter(order => (order.status === 'Giao thành công' || order.status === 'Hoàn' && !!order.delivered_at) && inRange(order.delivered_at || createdDate(order)));
   const returned = shop.orders.filter(order => order.status === 'Hoàn' && inRange(order.returned_at || createdDate(order)));
   const refunded = returned.filter(order => !!order.delivered_at);
@@ -98,7 +98,7 @@ export const needsSpx=(order:Order)=>['Mới','Đã tạo đơn'].includes(order
 
 export function todayOperations(shop:Shop,date:string){
   const events=activityMetrics(shop,date,date);
-  const ads=shop.expenses.filter(expense=>expense.date===date&&expense.category==='Quảng cáo').reduce((sum,expense)=>sum+expense.amount,0);
+  const ads=effectiveExpenses(shop).filter(expense=>expense.date===date&&expense.category==='Quảng cáo').reduce((sum,expense)=>sum+expense.amount,0);
   const hours=Array.from({length:24},(_,hour)=>({hour,value:0,count:0}));
   let unknownValue=0,unknownCount=0;
   const formatter=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',hourCycle:'h23'});

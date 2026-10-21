@@ -1,13 +1,14 @@
 export const statuses = ['Mới','Đã tạo đơn','Đã gửi','Giao thành công','Hoàn','Hủy'] as const;
 export type Item={id?:string;product:string;color?:string;size:string;quantity:number;price:number;cost:number};
 export type Order = {id:string;date:string;created_at?:string;updated_at?:string;shipped_at?:string;delivered_at?:string;returned_at?:string;spxCode?:string;shippingFee?:number;returnShippingFee?:number;customer:string;phone:string;address:string;product:string;size:string;quantity:number;price:number;cost:number;status:string;note:string;sourceRow?:number;items:Item[]};
-export type Expense = {id:string;date:string;category:string;name:string;amount:number;note:string;adFeeRate?:number};
+export type Expense = {id:string;date:string;category:string;name:string;amount:number;note:string;adFeeRate?:number;source?:'manual'|'meta'};
+export type MetaAdSpend = {date:string;amount:number;currency:string;syncedAt:string;adFeeRate?:number};
 export type ReturnReceipt={orderId:string;receivedAt:string};
 export type ProcurementTaken={orderId:string;itemId:string;variant:string;quantity:number;takenAt:string};
 export type InventoryAllocation={orderId:string;itemId:string;variant:string;quantity:number};
 export type InventoryStocktake={countedOn:string;absorbedReturnOrderIds:string[];items:{product:string;color:string;size:string;quantity:number;unitCost:number}[]};
 export type InventoryState={returnReceipts:ReturnReceipt[];procurementTaken:ProcurementTaken[];allocations:InventoryAllocation[];stocktake?:InventoryStocktake};
-export type Shop = {orders:Order[];expenses:Expense[];products:{name:string;price:number;cost:number;image?:string}[];settings:{shipping:number;returnShipping:number;platformRate:number;cardRate:number;returnRateThreshold?:number};undatedInbound:number;source:string;inventory?:InventoryState};
+export type Shop = {orders:Order[];expenses:Expense[];metaAdSpend?:MetaAdSpend[];products:{name:string;price:number;cost:number;image?:string}[];settings:{shipping:number;returnShipping:number;platformRate:number;cardRate:number;returnRateThreshold?:number};undatedInbound:number;source:string;inventory?:InventoryState};
 export type InventoryRequirement={key:string;orderId:string;itemId:string;customer:string;createdAt:string;product:string;color:string;size:string;ordered:number;fromStock:number;required:number;taken:number;pending:number;status:'Chưa lấy'|'Đã lấy'};
 export type InventoryStock={key:string;product:string;color:string;size:string;quantity:number;unitCost:number;sourceOrders:string[]};
 export const money = (n:number) => new Intl.NumberFormat('vi-VN',{maximumFractionDigits:0}).format(n) + ' ₫';
@@ -15,6 +16,16 @@ export const shortMoney = (n:number) => Math.abs(n)>=1e6 ? (n/1e6).toLocaleStrin
 const businessDateFormatter=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'});
 export const eventDate = (value?:string) => {if(!value)return '';if(/T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value)&&!Number.isNaN(Date.parse(value)))return businessDateFormatter.format(new Date(value));return value.slice(0,10);};
 export const createdDate = (order:Order) => eventDate(order.created_at||order.date);
+/** Meta is authoritative for any synchronized day; keep manual Ads only as a fallback for unsynchronized dates. */
+export function effectiveExpenses(shop:Shop):Expense[]{
+ const metaDates=new Set((shop.metaAdSpend||[]).map(row=>row.date));
+ const manual=shop.expenses.filter(expense=>expense.category!=='Quảng cáo'||!metaDates.has(expense.date));
+ const automatic=(shop.metaAdSpend||[]).map(row=>({
+  id:`meta-ads:${row.date}`,date:row.date,category:'Quảng cáo',name:'Facebook Ads (Meta)',amount:row.amount,
+  note:`Đồng bộ tự động lúc ${row.syncedAt}`,adFeeRate:row.adFeeRate,source:'meta' as const,
+ }));
+ return [...manual,...automatic];
+}
 const cleanVariant=(value?:string)=>String(value||'').trim().toLocaleLowerCase('vi');
 export const variantKey=(item:Pick<Item,'product'|'color'|'size'>)=>[cleanVariant(item.product),cleanVariant(item.color),cleanVariant(item.size)].join('\u001f');
 export const inventoryState=(shop:Shop):InventoryState=>({returnReceipts:shop.inventory?.returnReceipts||[],procurementTaken:shop.inventory?.procurementTaken||[],allocations:shop.inventory?.allocations||[],stocktake:shop.inventory?.stocktake});
@@ -83,7 +94,7 @@ export function overviewEvents(shop:Shop,date:string){
  const delivered=shop.orders.filter(order=>(order.delivered_at?eventDate(order.delivered_at)===date:(createdDate(order)===date&&order.status==='Giao thành công')));
  const returned=shop.orders.filter(order=>(order.returned_at?eventDate(order.returned_at)===date:(createdDate(order)===date&&order.status==='Hoàn')));
  const orders=[...new Map([...created,...shipped,...delivered,...returned].map(order=>[order.id,order])).values()];
- const ads=shop.expenses.filter(e=>e.date===date&&e.category==='Quảng cáo').reduce((s,e)=>s+e.amount,0);
+ const ads=effectiveExpenses(shop).filter(e=>e.date===date&&e.category==='Quảng cáo').reduce((s,e)=>s+e.amount,0);
  const gross=created.reduce((sum,order)=>sum+order.price,0);
  const queue={
   new:shop.orders.filter(o=>o.status==='Mới').length,
@@ -95,7 +106,7 @@ export function overviewEvents(shop:Shop,date:string){
 }
 export function metrics(shop:Shop,from:string,to:string,includeUndated=false){
  const orders=shop.orders.filter(o=>createdDate(o)>=from&&createdDate(o)<=to&&o.status!=='Hủy');
- const expenses=shop.expenses.filter(e=>e.date>=from&&e.date<=to);
+ const expenses=effectiveExpenses(shop).filter(e=>e.date>=from&&e.date<=to);
  const done=orders.filter(o=>o.status==='Giao thành công');
  const returned=orders.filter(o=>o.status==='Hoàn');
  const committed=orders.filter(o=>['Đã tạo đơn','Đã gửi','Giao thành công'].includes(o.status));
