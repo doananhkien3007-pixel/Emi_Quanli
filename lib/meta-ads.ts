@@ -81,6 +81,6 @@ export async function syncMetaSpend(mode:SyncMode){
 }
 
 export function cronMode(schedule:string|null,requested:string|null):SyncMode|null{
- if(schedule==='10 17 * * *')return 'last3';
+ if(schedule==='10 17 * * *')return 'yesterday';
  return requested==='today'||requested==='yesterday'||requested==='last3'?requested:null;
 }
