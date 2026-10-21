@@ -59,7 +59,7 @@ export type AdsEntitySummary=AdsSummary&{
  status:string;
  creativeThumbnailUrl?:string;
  previous?:AdsSummary;
- flags:Array<'spend-up-results-down'|'cpa-up'|'low-roas'|'burning'|'improving'>;
+ flags:Array<'spend-up-results-down'|'cpa-up'|'low-roas'|'burning'|'no-purchase'|'improving'>;
 };
 
 const primaryResult=(messages:number,leads:number,purchases:number)=>purchases>0?{results:purchases,resultType:'purchase'}:leads>0?{results:leads,resultType:'lead'}:messages>0?{results:messages,resultType:'message'}:{results:0,resultType:undefined};
@@ -101,11 +101,14 @@ export function previousAdsRange(since:string,until:string){
 function detectFlags(current:AdsSummary,previous?:AdsSummary):AdsEntitySummary['flags']{
  const flags:AdsEntitySummary['flags']=[];
  if(current.spend>0&&current.results===0)flags.push('burning');
+ if(current.spend>0&&current.purchases===0)flags.push('no-purchase');
  if(current.spend>0&&current.roas!==null&&current.roas<1.5)flags.push('low-roas');
  if(previous){
   if(current.spend>previous.spend*1.2&&current.results<previous.results*.8)flags.push('spend-up-results-down');
-  if(current.costPerResult!==null&&previous.costPerResult!==null&&current.costPerResult>previous.costPerResult*1.3)flags.push('cpa-up');
-  if(current.results>previous.results&&((current.costPerResult!==null&&previous.costPerResult!==null&&current.costPerResult<previous.costPerResult)||(current.roas!==null&&current.roas>(previous.roas||0))))flags.push('improving');
+  const currentPurchaseCpa=current.purchases?current.spend/current.purchases:null;
+  const previousPurchaseCpa=previous.purchases?previous.spend/previous.purchases:null;
+  if(currentPurchaseCpa!==null&&previousPurchaseCpa!==null&&currentPurchaseCpa>previousPurchaseCpa*1.3)flags.push('cpa-up');
+  if(current.purchases>previous.purchases&&((currentPurchaseCpa!==null&&previousPurchaseCpa!==null&&currentPurchaseCpa<previousPurchaseCpa)||(current.roas!==null&&current.roas>(previous.roas||0))))flags.push('improving');
  }
  return flags;
 }
@@ -134,7 +137,7 @@ export function adsTrendRows(rows:MetaAdsInsight[],entityIds:string[]){
   for(const id of entityIds){
    const summary=summarizeAds(rows.filter(row=>row.date===date&&row.entityId===id));
    point[`${id}:spend`]=summary.spend;
-   point[`${id}:cpa`]=summary.costPerResult??0;
+   point[`${id}:cpa`]=summary.purchases?summary.spend/summary.purchases:0;
    point[`${id}:roas`]=summary.roas??0;
   }
   return point;
