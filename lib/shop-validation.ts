@@ -2,7 +2,10 @@ import { z } from 'zod';
 import { createdDate, inventorySnapshot, inventoryState, reconcileInventory, statuses, variantKey, type Shop } from './model.ts';
 const amount=z.number().finite().min(0).max(1e12);
 const date=z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v=>!isNaN(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v);
-const dateTime=z.string().regex(/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:\d{2})?)?$/).refine(value=>!Number.isNaN(Date.parse(value))&&new Date(value.slice(0,10)).toISOString().slice(0,10)===value.slice(0,10));
+// PostgreSQL/Supabase can serialize timestamptz values with microseconds, while
+// browser-generated ISO timestamps commonly contain milliseconds. Accept both
+// (and nanosecond precision) without relaxing the required ISO-8601 shape.
+const dateTime=z.string().regex(/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:Z|[+-]\d{2}:\d{2})?)?$/).refine(value=>!Number.isNaN(Date.parse(value))&&new Date(value.slice(0,10)).toISOString().slice(0,10)===value.slice(0,10));
 const line=z.string().max(2000);
 const productImageData=z.string().max(240000).regex(/^data:image\/(?:jpeg|webp|png);base64,[A-Za-z0-9+/]+={0,2}$/);
 const metaAdSpendSchema=z.object({date,amount,currency:z.string().regex(/^[A-Z]{3}$/),syncedAt:dateTime,adFeeRate:z.number().min(0).max(200).optional()});

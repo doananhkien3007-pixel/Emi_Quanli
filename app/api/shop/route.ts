@@ -74,7 +74,10 @@ export async function GET(){
 export async function PUT(request:Request){
  const origin=request.headers.get('origin');if(origin&&origin!==new URL(request.url).origin)return json({error:'Yêu cầu không hợp lệ.'},403);
  let input;try{input=shopSchema.safeParse(await request.json());}catch{return json({error:'Dữ liệu không hợp lệ.'},400);}
- if(!input.success)return json({error:'Kiểm tra lại ngày, số tiền và các trường bắt buộc.'},400);
+ if(!input.success){
+  console.error(JSON.stringify({event:'shop_payload_validation_failed',issues:input.error.issues.map(issue=>({code:issue.code,path:issue.path.join('.')}))}));
+  return json({error:'Kiểm tra lại ngày, số tiền và các trường bắt buộc.'},400);
+ }
  const {data,revision}=input.data;
  const businessDay=shopToday();
  const config=getSupabaseConfig();

@@ -128,6 +128,25 @@ check('Meta Ads replaces manual Ads for synchronized dates without double counti
  assert.equal(metric.expenses.find(expense=>expense.category==='Quảng cáo').source,'meta');
  const fallback=financialMetrics({...shop,metaAdSpend:[]},'2026-10-03','2026-10-03');assert.equal(fallback.ads,50000);
 });
+check('Supabase microsecond timestamps do not block editing an older expense',()=>{
+ const metaAdSpend=[{date:'2026-10-21',amount:179202,currency:'VND',syncedAt:'2026-10-21T07:03:21.892746+00:00',adFeeRate:11}];
+ const previous=normalizeShop({...base,metaAdSpend});
+ const incoming={...previous,expenses:previous.expenses.map(expense=>expense.id==='ADS'?{...expense,date:'2026-10-20',amount:316345}:expense)};
+ const parsed=shopSchema.safeParse({revision:1,data:incoming});
+ assert.ok(parsed.success,parsed.error?.issues.map(issue=>`${issue.path.join('.')}: ${issue.message}`).join('; '));
+ const update=prepareShopUpdate(previous,parsed.data.data,'2026-10-21');
+ assert.ok(!update.error,update.error);assert.equal(update.data.expenses.find(expense=>expense.id==='ADS').amount,316345);
+});
+check('Supabase microsecond timestamps do not block changing an older order status',()=>{
+ const oldOrder={...newOrder,id:'OLD-ORDER',date:'2026-10-20',created_at:'2026-10-20T10:00:00+07:00'};
+ const metaAdSpend=[{date:'2026-10-21',amount:179202,currency:'VND',syncedAt:'2026-10-21T07:03:21.892746+00:00',adFeeRate:11}];
+ const previous=normalizeShop({...base,orders:[oldOrder],metaAdSpend});
+ const incoming={...previous,orders:[{...previous.orders[0],status:'Giao thành công'}]};
+ const parsed=shopSchema.safeParse({revision:1,data:incoming});
+ assert.ok(parsed.success,parsed.error?.issues.map(issue=>`${issue.path.join('.')}: ${issue.message}`).join('; '));
+ const update=prepareShopUpdate(previous,parsed.data.data,'2026-10-21');
+ assert.ok(!update.error,update.error);assert.equal(update.data.orders[0].status,'Giao thành công');assert.equal(update.data.orders[0].delivered_at,'2026-10-21');
+});
 check('Cohort retains final revenue and costs on close date, including later returns',()=>{
  const shop={...base,expenses:base.expenses.map(e=>({...e,date:'2026-10-01'}))};
  const closed=cohortFinancialMetrics(shop,'2026-10-01','2026-10-01');assert.equal(closed.revenue,300000);assert.equal(closed.profit,117500);assert.equal(closed.deliveredCpa,50000);
