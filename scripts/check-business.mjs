@@ -54,6 +54,7 @@ check('Already procured or shipped orders do not consume newly returned stock',(
 check('Server captures event dates without inventing legacy events or mutating notes-only imports',()=>{
  const before=normalizeShop({...base,orders:[newOrder]});
  let result=prepareShopUpdate(before,{...before,orders:[{...before.orders[0],status:'Giao thành công'}]},'2026-10-05');assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].delivered_at,'2026-10-05');assert.equal(result.data.orders[0].shipped_at,'2026-10-05');
+ const sentAgain=prepareShopUpdate(result.data,{...result.data,orders:[{...result.data.orders[0],status:'Đã gửi'}]},'2026-10-06');assert.ok(!sentAgain.error,sentAgain.error);assert.equal(sentAgain.data.orders[0].status,'Đã gửi');assert.equal(sentAgain.data.orders[0].shipped_at,'2026-10-05');assert.equal(sentAgain.data.orders[0].delivered_at,undefined);assert.equal(todayOperations(sentAgain.data,'2026-10-05').delivered.length,0);
  const legacy=normalizeShop({...base,orders:[{...order,delivered_at:undefined,shipped_at:undefined}]});result=prepareShopUpdate(legacy,{...legacy,orders:[{...legacy.orders[0],note:'Bổ sung ghi chú'}]},'2026-10-05');assert.ok(!result.error,result.error);assert.equal(result.data.orders[0].delivered_at,undefined);assert.equal(result.data.orders[0].shipped_at,undefined);
 });
 check('Server preserves supplied creation time and never invents a missing hour',()=>{

@@ -83,6 +83,7 @@ async function metaGetAll<T>(path:string,params:Record<string,string>):Promise<T
 
 function acceptedVietnamTimezone(value:string){return ['Asia/Ho_Chi_Minh','Asia/Saigon'].includes(value);}
 function finite(value:unknown,label:string){const parsed=Number(value??0);if(!Number.isFinite(parsed)||parsed<0)throw new Error(`meta_${label}_invalid`);return parsed;}
+function requiredMetric(value:unknown,label:string){if(value===undefined||value===null||value==='')throw new Error(`meta_${label}_missing`);return finite(value,label);}
 function actionValue(actions:MetaAction[]|undefined,types:string[]){
  for(const type of types){const item=actions?.find(action=>action.action_type===type);if(item)return finite(item.value,`action_${type}`);}
  return 0;
@@ -99,7 +100,7 @@ function safeThumbnail(value?:string){
 export function normalizeMetaInsight(raw:MetaRawInsight,context:{
  level:MetaAdsLevel;currency:string;campaign:MetaCampaign;status:string;creative?:MetaAd['creative'];
 }):MetaInsightSyncRow{
- const spend=finite(raw.spend,'spend'),impressions=finite(raw.impressions,'impressions'),reach=finite(raw.reach,'reach'),clicks=finite(raw.clicks,'clicks');
+ const spend=requiredMetric(raw.spend,'spend'),impressions=requiredMetric(raw.impressions,'impressions'),reach=requiredMetric(raw.reach,'reach'),clicks=requiredMetric(raw.clicks,'clicks');
  const messages=actionValue(raw.actions,messageActions),leads=actionValue(raw.actions,leadActions),purchases=actionValue(raw.actions,purchaseActions);
  const purchaseValue=actionValue(raw.action_values,purchaseActions);
  const result=purchases>0?{value:purchases,type:'purchase'}:leads>0?{value:leads,type:'lead'}:messages>0?{value:messages,type:'message'}:{value:0,type:undefined};
@@ -143,20 +144,29 @@ export async function fetchMetaSpend(since:string,until:string):Promise<Array<Pi
 
 export async function fetchMetaInsights(since:string,until:string):Promise<MetaInsightSyncRow[]>{
  const {accountId}=metaConfig();
- const [account,campaigns]=await Promise.all([
+ const [account,campaigns,adsets,ads]=await Promise.all([
   metaGet<{currency:string;timezone_name:string}>(accountId,{fields:'currency,timezone_name'}),
   metaGetAll<MetaCampaign>(`${accountId}/campaigns`,{fields:'id,name,status,effective_status,created_time',limit:'500'}),
+  metaGetAll<MetaAdset>(`${accountId}/adsets`,{fields:'id,name,status,effective_status,campaign_id',limit:'500'}),
+  metaGetAll<MetaAd>(`${accountId}/ads`,{fields:'id,name,status,effective_status,campaign_id,adset_id,creative{id,thumbnail_url}',limit:'500'}),
  ]);
  if(account.currency!=='VND')throw new Error(`meta_account_currency_must_be_vnd:${account.currency||'unknown'}`);
  if(!acceptedVietnamTimezone(account.timezone_name))throw new Error(`meta_account_timezone_must_be_${BUSINESS_TIMEZONE}:${account.timezone_name||'unknown'}`);
  const activeCampaigns=new Map(campaigns.filter(campaign=>campaign.effective_status==='ACTIVE').map(campaign=>[campaign.id,campaign]));
  if(!activeCampaigns.size)return [];
  const fields='date_start,campaign_id,campaign_name,adset_id,adset_name,ad_id,ad_name,spend,impressions,reach,clicks,ctr,cpc,cpm,actions,action_values,cost_per_action_type,purchase_roas,website_purchase_roas';
- const [adsets,ads,...levelRows]=await Promise.all([
-  metaGetAll<MetaAdset>(`${accountId}/adsets`,{fields:'id,name,status,effective_status,campaign_id',limit:'500'}),
-  metaGetAll<MetaAd>(`${accountId}/ads`,{fields:'id,name,status,effective_status,campaign_id,adset_id,creative{id,thumbnail_url}',limit:'500'}),
-  ...INSIGHT_LEVELS.map(level=>metaGetAll<MetaRawInsight>(`${accountId}/insights`,{fields,level,time_increment:'1',time_range:JSON.stringify({since,until}),limit:'5000'})),
- ]);
+ // Meta can omit absolute metrics from multi-day time_increment responses while
+ // still returning derived rates. Query each business day directly so a partial
+ // response can never be mistaken for zero spend. Three consecutive days are
+ // processed together to keep the 30-day backfill fast without a request burst.
+ const levelRows:MetaRawInsight[][]=INSIGHT_LEVELS.map(()=>[]),dates=datesBetween(since,until);
+ for(let start=0;start<dates.length;start+=3){
+  const batch=dates.slice(start,start+3);
+  const batchRows=await Promise.all(batch.map(date=>Promise.all(INSIGHT_LEVELS.map(level=>metaGetAll<MetaRawInsight>(`${accountId}/insights`,{
+   fields,level,time_range:JSON.stringify({since:date,until:date}),limit:'5000',
+  })))));
+  for(const rowsByLevel of batchRows)rowsByLevel.forEach((rows,index)=>levelRows[index].push(...rows));
+ }
  const adsetsById=new Map(adsets.filter(adset=>activeCampaigns.has(adset.campaign_id)).map(adset=>[adset.id,adset]));
  const adsById=new Map(ads.filter(ad=>activeCampaigns.has(ad.campaign_id)).map(ad=>[ad.id,ad]));
  const creativeByAdset=new Map<string,MetaAd['creative']>(),creativeByCampaign=new Map<string,MetaAd['creative']>();

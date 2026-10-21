@@ -14,7 +14,15 @@ const inventorySchema=z.object({returnReceipts:z.array(z.object({orderId:line.mi
 export const shopSchema=z.object({revision:z.number().int().min(1),data:z.object({orders:z.array(z.object({id:line.min(1),date,created_at:dateTime.optional(),updated_at:dateTime.optional(),shipped_at:date.optional(),returnShippingFee:amount.optional(),delivered_at:date.optional(),returned_at:date.optional(),spxCode:line.optional(),shippingFee:amount.optional(),customer:line.min(1),phone:line,address:line,product:line.min(1),size:line,quantity:z.number().int().min(1).max(10000),price:amount,cost:amount,status:z.enum(statuses),note:line,sourceRow:z.number().optional(),items:z.array(itemSchema).min(1).max(100)})).max(20000),expenses:z.array(z.object({id:line.min(1),date,category:line.min(1),name:line.min(1),amount,note:line,adFeeRate:z.number().min(0).max(200).optional(),source:z.enum(['manual','meta']).optional()})).max(20000),metaAdSpend:z.array(metaAdSpendSchema).max(4000).optional(),products:z.array(z.object({name:line,price:amount,cost:amount,image:productImageData.optional()})),settings:z.object({shipping:amount,returnShipping:amount,platformRate:z.number().min(0).max(100),cardRate:z.number().min(0).max(100),returnRateThreshold:z.number().min(0).max(100).optional()}),undatedInbound:amount,source:line,inventory:inventorySchema.optional()})});
 export function normalizeShop(input:Shop):Shop{
  const seenItemIds=new Set<string>();
- const orders=input.orders.map(order=>({...order,created_at:order.created_at||order.date,status:order.status==='Đang giao'?'Đã gửi':order.status,items:order.items.map((item,index)=>{let id=item.id?.trim()||`${order.id}-${index+1}`;if(seenItemIds.has(id))id=`${order.id}-${index+1}`;seenItemIds.add(id);return {...item,id,color:item.color?.trim()||''};})}));
+ const orders=input.orders.map(order=>{
+  const status=order.status==='Đang giao'?'Đã gửi':order.status;
+  const waiting=['Mới','Đã tạo đơn'].includes(status);
+  return {...order,created_at:order.created_at||order.date,status,
+   shipped_at:waiting?undefined:order.shipped_at,
+   delivered_at:['Giao thành công','Hoàn'].includes(status)?order.delivered_at:undefined,
+   returned_at:status==='Hoàn'?order.returned_at:undefined,
+   items:order.items.map((item,index)=>{let id=item.id?.trim()||`${order.id}-${index+1}`;if(seenItemIds.has(id))id=`${order.id}-${index+1}`;seenItemIds.add(id);return {...item,id,color:item.color?.trim()||''};})};
+ });
  // Legacy mixed-order labels are not sellable products; retain all order items.
  const products=input.products.filter(product=>!['nhiều sp','nhiều sản phẩm'].includes(product.name.trim().toLocaleLowerCase('vi')));
  return reconcileInventory({...input,orders,products});
@@ -59,7 +67,13 @@ export function prepareShopUpdate(previous: Shop, incoming: Shop, day: string): 
   order.created_at ||= order.date;
   order.date = createdDate(order);
   if (order.date > day) return { error: 'Ngày chốt đơn không được ở tương lai.' };
-  if(old?.status==='Hoàn'&&order.status!=='Hoàn')order.returned_at=undefined;
+  // Event dates follow the current order state. When a status is corrected
+  // backwards, remove later milestones so dashboards cannot count stale
+  // delivery/return events. A returned order may keep delivered_at because it
+  // can represent a real delivery that was refunded later.
+  if(['Mới','Đã tạo đơn'].includes(order.status)&&(old?.shipped_at||old?.status!==order.status))order.shipped_at=undefined;
+  if(!['Giao thành công','Hoàn'].includes(order.status))order.delivered_at=undefined;
+  if(order.status!=='Hoàn')order.returned_at=undefined;
   if (!old || old.status !== order.status) {
    // Do not invent missing shipping dates when a legacy in-transit order completes.
    if (order.status === 'Đã gửi' || (!old || ['Mới','Đã tạo đơn'].includes(old.status)) && ['Giao thành công','Hoàn'].includes(order.status)) order.shipped_at ||= day;
