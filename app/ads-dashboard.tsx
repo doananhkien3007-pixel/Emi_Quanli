@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, LoaderCircle, Megaphone, MessageCircle, MousePointerClick, RefreshCw, ShoppingCart, TrendingDown, TrendingUp, Users } from 'lucide-react';
+import { AlertTriangle, ImageOff, LoaderCircle, Megaphone, MessageCircle, MousePointerClick, RefreshCw, ShoppingCart, TrendingDown, TrendingUp, Users } from 'lucide-react';
 import { previousAdsRange, rankAdsEntities, summarizeAds, type AdsEntitySummary, type MetaAdsInsight } from '../lib/ads-insights';
 import { money } from '../lib/model';
 
@@ -17,6 +17,14 @@ function TrendBadge({current,previous,reverse=false}:{current:number;previous:nu
 
 function Kpi({label,value,note,icon:Icon,current,previous,reverse=false}:{label:string;value:string;note:string;icon:typeof Megaphone;current:number;previous:number;reverse?:boolean}){
  return <article className="ads-kpi"><div className="ads-kpi-heading"><span>{label}</span><Icon size={18}/></div><strong>{value}</strong><div className="ads-kpi-footer"><small>{note}</small><TrendBadge current={current} previous={previous} reverse={reverse}/></div></article>;
+}
+
+function CreativeThumbnail({src,name,active}:{src?:string;name:string;active:boolean}){
+ const [failed,setFailed]=useState(false);
+ return <span className={`ads-creative-thumb ${src&&!failed?'has-image':'placeholder'}`}>
+  {src&&!failed?<img src={src} alt={`Creative của ${name}`} width={44} height={44} loading="lazy" referrerPolicy="no-referrer" onError={()=>setFailed(true)}/>:<ImageOff size={15} aria-hidden="true"/>}
+  <i className={active?'active':''} aria-hidden="true"/>
+ </span>;
 }
 
 function flagLabel(flag:AdsEntitySummary['flags'][number]){
@@ -81,7 +89,7 @@ export function AdsDashboard({from,to,localStorageMode,syncing,refreshKey,onSync
       const entityAov=entity.purchases?entity.purchaseValue/entity.purchases:null;
       const previousPurchaseCpa=entity.previous?.purchases?entity.previous.spend/entity.previous.purchases:null;
       return <tr key={entity.entityId} className={entity.flags.some(flag=>flag!=='improving')?'ads-risk-row':''}>
-       <td><div className="ads-campaign-name"><i className={entity.status==='ACTIVE'?'active':''}/><strong className="ads-entity-name">{entity.entityName}</strong></div></td>
+       <td><div className="ads-campaign-name"><CreativeThumbnail key={entity.creativeThumbnailUrl||'empty'} src={entity.creativeThumbnailUrl} name={entity.entityName} active={entity.status==='ACTIVE'}/><strong className="ads-entity-name" title={entity.entityName}>{entity.entityName}</strong></div></td>
        <td><span className={`ads-status ${entity.status==='ACTIVE'?'active':''}`}><i/>{entity.status==='ACTIVE'?'Đang chạy':entity.status.replaceAll('_',' ')}</span></td>
        <td className="number"><strong>{money(entity.spend)}</strong>{entity.previous&&<TrendBadge current={entity.spend} previous={entity.previous.spend} reverse/>}</td>
        <td className="number"><strong>{decimal(entity.messages,1)}</strong></td>
