@@ -4,8 +4,6 @@
   "buildCommand": "next build --webpack",
   "installCommand": "npm ci",
   "crons": [
-    { "path": "/api/cron/meta-ads", "schedule": "*/30 * * * *" },
-    { "path": "/api/cron/meta-ads", "schedule": "10 17 * * *" },
-    { "path": "/api/cron/meta-ads", "schedule": "5 1 * * *" }
+    { "path": "/api/cron/meta-ads", "schedule": "10 17 * * *" }
   ]
 }
