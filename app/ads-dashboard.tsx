@@ -84,7 +84,7 @@ export function AdsDashboard({from,to,localStorageMode,syncing,refreshKey,onSync
    <div className="ads-section-heading"><div><h2>Hiệu quả theo chiến dịch</h2><p>So sánh với kỳ trước · ưu tiên chiến dịch tốn chi phí nhưng không tạo đơn mua</p></div><span className="count-pill">{ranking.length} chiến dịch</span></div>
    <div className="table-scroll">
     <table className="ads-ranking-table">
-     <thead><tr><th>TÊN CHIẾN DỊCH</th><th>TRẠNG THÁI</th><th className="number">CHI TIÊU</th><th className="number">TIN NHẮN</th><th className="number">LƯỢT MUA</th><th className="number">TỶ LỆ CHỐT</th><th className="number">GIÁ MESS</th><th className="number">CPA</th><th className="number">DOANH THU</th><th className="number">AOV</th><th className="number">ROAS</th><th className="number">CTR</th><th className="number">CPC</th><th>ĐÁNH GIÁ</th></tr></thead>
+     <thead><tr><th>TÊN CHIẾN DỊCH</th><th>TRẠNG THÁI</th><th className="number ads-comparison-heading">CHI TIÊU</th><th className="number">TIN NHẮN</th><th className="number">LƯỢT MUA</th><th className="number">TỶ LỆ CHỐT</th><th className="number">GIÁ MESS</th><th className="number ads-comparison-heading">CPA</th><th className="number">DOANH THU</th><th className="number">AOV</th><th className="number">ROAS</th><th className="number">CTR</th><th className="number">CPC</th><th>ĐÁNH GIÁ</th></tr></thead>
      <tbody>{ranking.map(entity=>{
       const entityMessageCost=entity.messages?entity.spend/entity.messages:null;
       const entityCloseRate=entity.messages?entity.purchases/entity.messages*100:null;
