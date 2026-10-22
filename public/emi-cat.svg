@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <title>Emi House — Mèo cười</title>
+  <rect width="64" height="64" rx="18" fill="#087F5B"/>
+  <path d="M14 30V17.5c0-1.6 1.8-2.5 3.1-1.6l10.1 7.2a25 25 0 0 1 9.6 0l10.1-7.2c1.3-.9 3.1 0 3.1 1.6V30c2 2.6 3 5.5 3 8.5C53 48.2 43.6 53 32 53S11 48.2 11 38.5c0-3 1-5.9 3-8.5Z" fill="#FFFCF5"/>
+  <path d="m18.5 21.5 6 4.4-6 2.4v-6.8Zm27 0-6 4.4 6 2.4v-6.8Z" fill="#A4DCC0"/>
+  <g stroke="#16634E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 35.5c1.4-2.2 4.1-2.2 5.5 0m11 0c1.4-2.2 4.1-2.2 5.5 0"/>
+    <path d="M32 41v1.5m0 0c-1 3.7-5.3 3.7-6.4.8m6.4-.8c1 3.7 5.3 3.7 6.4.8"/>
+  </g>
+  <path d="M29.7 38.5h4.6c.7 0 1 .8.5 1.3l-2.1 2a1 1 0 0 1-1.4 0l-2.1-2c-.5-.5-.2-1.3.5-1.3Z" fill="#16634E"/>
+  <ellipse cx="19.5" cy="41" rx="3.5" ry="2" fill="#F3B8A9"/>
+  <ellipse cx="44.5" cy="41" rx="3.5" ry="2" fill="#F3B8A9"/>
+</svg>
